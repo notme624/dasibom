@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>다시봄 | 가까운 농산물을 필요한 만큼</title>
+    <style>
+    :root {
+      --ink:#27372b;
+      --muted:#6a786c;
+      --green:#436b49;
+      --light:#f3f7ef;
+      --line:#e2e8db;
+      --cream:#fdfaf2;
+      --orange:#bc724d
+    }
+    * {
+      box-sizing:border-box
+    }
+    body {
+      margin:0;
+      font-family:Pretendard,'Noto Sans KR',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+      color:var(--ink);
+      background:#fff
+    }
+    button,input,select,textarea {
+      font:inherit
+    }
+    button {
+      cursor:pointer
+    }
+    button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible {
+      outline:3px solid #a4c7a7;
+      outline-offset:2px
+    }
+    .wrap {
+      max-width:1120px;
+      margin:auto;
+      padding:0 22px
+    }
+    header {
+      border-bottom:1px solid var(--line);
+      background:white;
+      position:sticky;
+      top:0;
+      z-index:10
+    }
+    .nav {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      min-height:74px;
+      gap:15px
+    }
+    .logo {
+      font-weight:900;
+      font-size:27px;
+      letter-spacing:-1px;
+      color:var(--green)
+    }
+    .logo span {
+      font-size:13px;
+      letter-spacing:0;
+      font-weight:500;
+      display:block;
+      color:var(--muted)
+    }
+    .nav-actions {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap
+    }
+    .btn {
+      background:var(--green);
+      border:1px solid var(--green);
+      border-radius:12px;
+      padding:11px 17px;
+      color:white;
+      font-weight:700
+    }
+    .btn.alt {
+      background:#fff;
+      color:var(--green)
+    }
+    .btn.ghost {
+      background:transparent;
+      color:var(--ink);
+      border-color:transparent
+    }
+    .hero {
+      background:linear-gradient(120deg,#edf5e9,#fff9e9);
+      padding:65px 0
+    }
+    .hero-inner {
+      display:grid;
+      grid-template-columns:1.2fr .8fr;
+      gap:30px;
+      align-items:center
+    }
+    .eyebrow {
+      color:var(--green);
+      font-weight:800;
+      font-size:14px
+    }
+    .hero h1 {
+      font-size:clamp(34px,5vw,58px);
+      line-height:1.23;
+      letter-spacing:-2px;
+      margin:15px 0
+    }
+    .hero p {
+      line-height:1.8;
+      color:#58675b;
+      max-width:570px
+    }
+    .hero-card {
+      background:#fff;
+      border:1px solid #e0e9d8;
+      border-radius:28px;
+      padding:30px;
+      box-shadow:0 15px 40px #4c5e3820;
+      transform:rotate(2deg)
+    }
+    .hero-art {
+      font-size:92px;
+      text-align:center;
+      line-height:1.5
+    }
+    .hero-card strong {
+      display:block;
+      font-size:21px
+    }
+    .hero-card small {
+      display:block;
+      color:var(--muted);
+      margin-top:7px
+    }
+    .strip {
+      display:flex;
+      gap:12px;
+      margin-top:25px;
+      flex-wrap:wrap
+    }
+    .pill {
+      background:#fff;
+      border:1px solid #cbdac8;
+      border-radius:50px;
+      padding:8px 13px;
+      font-size:13px;
+      color:var(--green)
+    }
+    section {
+      padding:56px 0
+    }
+    .section-head {
+      display:flex;
+      gap:15px;
+      align-items:end;
+      justify-content:space-between;
+      flex-wrap:wrap;
+      margin-bottom:23px
+    }
+    .section-head h2 {
+      font-size:29px;
+      letter-spacing:-1px;
+      margin:0 0 8px
+    }
+    .section-head p {
+      color:var(--muted);
+      margin:0
+    }
+    .filters {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom:25px
+    }
+    .filters input,.filters select {
+      padding:12px 14px;
+      border:1px solid var(--line);
+      border-radius:12px;
+      background:white;
+      min-height:46px
+    }
+    .filters input {
+      flex:1;
+      min-width:190px
+    }
+    .grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:18px
+    }
+    .product {
+      border:1px solid var(--line);
+      border-radius:18px;
+      overflow:hidden;
+      background:white;
+      display:flex;
+      flex-direction:column
+    }
+    .product .cover {
+      height:175px;
+      background:#edf3e8;
+      display:grid;
+      place-items:center;
+      font-size:78px
+    }
+    .product .detail {
+      padding:19px;
+      flex:1;
+      display:flex;
+      flex-direction:column
+    }
+    .tags {
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap
+    }
+    .tag {
+      font-size:12px;
+      background:var(--light);
+      color:var(--green);
+      border-radius:25px;
+      padding:5px 9px
+    }
+    .product h3 {
+      font-size:21px;
+      margin:13px 0 6px
+    }
+    .product .desc {
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.6;
+      margin:5px 0
+    }
+    .price {
+      font-size:22px;
+      font-weight:800;
+      margin:12px 0
+    }
+    .meta {
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.7
+    }
+    .product .actions {
+      display:flex;
+      gap:8px;
+      margin-top:auto;
+      padding-top:17px
+    }
+    .product .actions .btn {
+      padding:10px 8px;
+      flex:1;
+      font-size:14px
+    }
+    .steps {
+      background:var(--cream)
+    }
+    .step-grid {
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:16px
+    }
+    .step {
+      background:white;
+      border:1px solid #efe8d9;
+      border-radius:17px;
+      padding:25px
+    }
+    .step b {
+      font-size:28px;
+      color:var(--green)
+    }
+    .step h3 {
+      font-size:19px
+    }
+    .step p {
+      font-size:14px;
+      color:var(--muted);
+      line-height:1.7
+    }
+    .footer {
+      background:#293c2e;
+      color:white;
+      padding:35px 0
+    }
+    .footer p {
+      color:#bacbbb;
+      font-size:13px;
+      line-height:1.7
+    }
+    .empty {
+      grid-column:1/-1;
+      text-align:center;
+      background:var(--light);
+      padding:40px;
+      border-radius:16px;
+      color:var(--muted)
+    }
+    dialog {
+      border:0;
+      border-radius:22px;
+      box-shadow:0 24px 80px #14201755;
+      max-width:min(560px,calc(100% - 26px));
+      width:100%;
+      padding:0
+    }
+    dialog::backdrop {
+      background:#15231990
+    }
+    .modal-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:22px 24px;
+      border-bottom:1px solid var(--line)
+    }
+    .modal-head h2 {
+      margin:0;
+      font-size:22px
+    }
+    .close {
+      background:#f0f3ed;
+      border:0;
+      width:34px;
+      height:34px;
+      border-radius:50%;
+      font-size:20px
+    }
+    .modal-body {
+      padding:22px 24px 26px;
+      max-height:70vh;
+      overflow:auto
+    }
+    .field {
+      margin:0 0 17px
+    }
+    .field label {
+      display:block;
+      font-weight:700;
+      font-size:14px;
+      margin-bottom:7px
+    }
+    .field input,.field select,.field textarea {
+      width:100%;
+      border:1px solid #ccd8cd;
+      border-radius:10px;
+      padding:12px;
+      background:white
+    }
+    .field textarea {
+      min-height:85px;
+      resize:vertical
+    }
+    .fine {
+      font-size:12px;
+      color:var(--muted);
+      line-height:1.6
+    }
+    .notice {
+      background:#f3f7ef;
+      padding:12px 14px;
+      border-radius:10px;
+      font-size:13px;
+      color:var(--green);
+      margin-bottom:16px;
+      line-height:1.7
+    }
+    .switch {
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap
+    }
+    .switch label {
+      display:flex;
+      align-items:center;
+      gap:4px
+    }
+    .switch input {
+      width:auto
+    }
+    .toast {
+      position:fixed;
+      bottom:22px;
+      right:22px;
+      background:#283e2e;
+      color:white;
+      border-radius:12px;
+      padding:14px 20px;
+      z-index:30;
+      box-shadow:0 10px 30px #0002;
+      display:none;
+      max-width:350px
+    }
+    .dash-list {
+      font-size:14px;
+      line-height:1.8;
+      padding-left:20px
+    }
+    .mini {
+      font-size:12px;
+      color:var(--muted)
+    }
+    @media(max-width:800px) {
+      .hero-inner {
+        grid-template-columns:1fr
+      }
+      .hero-card {
+        display:none
+      }
+      .grid {
+        grid-template-columns:repeat(2,1fr)
+      }
+      .step-grid {
+        grid-template-columns:1fr
+      }
+      .nav {
+        align-items:flex-start;
+        padding:14px 0;
+        flex-direction:column
+      }
+      .nav-actions {
+        width:100%
+      }
+      .hero {
+        padding:45px 0
+      }
+    }
+    @media(max-width:540px) {
+      .grid {
+        grid-template-columns:1fr
+      }
+      .product .cover {
+        height:190px
+      }
+      .hero h1 {
+        font-size:37px
+      }
+      .nav-actions .btn {
+        font-size:12px;
+        padding:9px 11px
+      }
+      section {
+        padding:38px 0
+      }
+    }
+    :root {
+      --green:#244a35;
+      --deep:#172f24;
+      --muted:#546258;
+      --paper:#faf8f1
+    }
+    html {
+      scroll-behavior:smooth;
+      scroll-padding-top:100px
+    }
+    body {
+      background:#faf8f1;
+      color:#172f24;
+      word-break:keep-all
+    }
+    header {
+      background:#faf8f1;
+      border-bottom:1px solid #e3e5da
+    }
+    .logo {
+      display:inline-flex;
+      align-items:center;
+      gap:9px;
+      text-decoration:none;
+      color:#172f24;
+      white-space:nowrap;
+      font-size:26px
+    }
+    .logo .brand-mark {
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      width:35px;
+      height:35px;
+      background:#244a35;
+      color:#efe5a7;
+      font-size:23px
+    }
+    .btn {
+      background:#244a35;
+      color:white;
+      border:1px solid transparent;
+      text-decoration:none
+    }
+    .btn.alt {
+      background:#fffdf7;
+      color:#244a35;
+      border:1px solid #d2dbcb
+    }
+    .btn.ghost {
+      background:transparent;
+      color:#244a35
+    }
+    .btn:hover,.btn:focus-visible {
+      outline:2px solid #7c966d;
+      outline-offset:2px
+    }
+    .hero {
+      background:#e6ebda;
+      border-bottom:1px solid #dce2d3
+    }
+    .hero-inner {
+      grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);
+      gap:52px;
+      padding-top:65px;
+      padding-bottom:65px
+    }
+    .hero h1 {
+      font-size:clamp(38px,5.4vw,72px);
+      letter-spacing:-.085em;
+      line-height:1.14;
+      margin:16px 0 20px
+    }
+    .hero p {
+      color:#405246;
+      font-size:clamp(15px,1.7vw,18px);
+      line-height:1.8
+    }
+    .eyebrow {
+      background:none;
+      color:#345741;
+      padding:0;
+      font-weight:750
+    }
+    .hero-actions {
+      display:flex;
+      flex-wrap:wrap;
+      gap:20px;
+      align-items:center;
+      margin-top:28px
+    }
+    .hero-button {
+      padding:14px 19px
+    }
+    .hero-button span {
+      margin-left:10px
+    }
+    .hero-link {
+      color:#244a35;
+      font-weight:700;
+      text-underline-offset:5px
+    }
+    .hero-card {
+      position:relative;
+      display:grid;
+      gap:15px;
+      text-align:left;
+      padding:22px;
+      background:#fdfbf1;
+      color:#172f24;
+      border:1px solid #d7dfcc;
+      border-radius:22px;
+      box-shadow:0 16px 32px #293f2314;
+      min-height:0
+    }
+    .featured-label {
+      font-size:13px;
+      font-weight:800;
+      color:#4b634f
+    }
+    .hero-card .hero-art {
+      display:grid;
+      place-items:center;
+      min-height:165px;
+      border-radius:14px;
+      background:radial-gradient(ellipse at 50% 85%,#c1a26b 0%,#ebd6a7 34%,#f1e7cd 76%);
+      font-size:104px;
+      line-height:1;
+      margin:0;
+      text-shadow:0 9px 14px #624b3866
+    }
+    .featured-info {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px
+    }
+    .hero-card .featured-info strong {
+      font-size:20px;
+      line-height:1.3
+    }
+    .hero-card .featured-price {
+      white-space:nowrap;
+      color:#244a35
+    }
+    .hero-card small {
+      color:#546258;
+      margin:5px 0 0;
+      font-size:13px
+    }
+    .hero-card .btn {
+      display:flex;
+      justify-content:space-between;
+      align-items:center
+    }
+    .section-head h2 {
+      letter-spacing:-.06em
+    }
+    #market .product {
+      background:#fffef9;
+      border:1px solid #e5e6d9;
+      border-radius:17px;
+      box-shadow:0 8px 24px #223c2210
+    }
+    #market .cover {
+      background:radial-gradient(ellipse at 50% 95%,#d9c193,#ede5cf 68%);
+      font-size:75px;
+      text-shadow:0 6px 10px #63462b40
+    }
+    #market .cover[data-product*="대파"] {
+      background:radial-gradient(ellipse at 50% 95%,#a4b78c,#e4ebd7 68%)
+    }
+    #market .cover[data-product*="고구마"] {
+      background:radial-gradient(ellipse at 50% 95%,#d2a99d,#f1e3df 68%)
+    }
+    #market .cover[data-product*="당근"] {
+      background:radial-gradient(ellipse at 50% 95%,#e1bb81,#f3e6cf 68%)
+    }
+    .tag {
+      color:#345741;
+      background:#edf0e5
+    }
+    .pickup {
+      border-top:1px solid #ecece1;
+      padding-top:10px;
+      color:#38543f;
+      font-size:13px;
+      font-weight:700
+    }
+    #reserveProduct {
+      white-space:pre-line
+    }
+    .reserve-total {
+      display:block;
+      font-weight:800
+    }
+    .reserve-total:empty {
+      display:none
+    }
+    .footer {
+      background:#243c30;
+      color:#fffaf0
+    }
+    @media(max-width:760px) {
+      .hero-inner {
+        grid-template-columns:1fr;
+        gap:27px;
+        padding-top:38px;
+        padding-bottom:38px
+      }
+      .hero-card .hero-art {
+        min-height:126px;
+        font-size:88px
+      }
+      .nav {
+        flex-wrap:wrap;
+        gap:8px
+      }
+      .nav-actions {
+        gap:4px
+      }
+      .nav-actions .btn {
+        font-size:13px;
+        padding:8px 9px
+      }
+      .hero-card .featured-info strong {
+        font-size:17px
+      }
+    }
+    @media(prefers-reduced-motion:reduce) {
+      html {
+        scroll-behavior:auto
+      }
+    }
+    </style>
+  </head>
+  <body>
+    <header>
+      <div class="wrap nav">
+        <a class="logo" href="#" aria-label="다시봄 홈"><span class="brand-mark" aria-hidden="true">✿</span> 다시봄</a>
+        <nav class="nav-actions" aria-label="주 메뉴">
+          <a class="btn ghost" href="#market">농산물 찾기</a>
+          <button class="btn ghost" onclick="showDialog('sellerDialog')">판매자 참여</button>
+          <button class="btn ghost" onclick="showDialog('adminDialog')">운영 현황</button>
+          <button class="btn" onclick="showDialog('addDialog')">농산물 올리기</button>
+        </nav>
+      </div>
+    </header>
+    <main>
+      <div class="hero">
+        <div class="wrap hero-inner">
+          <div>
+            <div class="eyebrow">춘천 · 강원 소규모 농가 직거래</div>
+            <h1>필요한 만큼 사고,<br>가까운 곳에서 받아요.</h1>
+            <p>대파 두 줄기부터 못난이 감자 한 봉지까지.<br>농가에 남은 농산물을 필요한 만큼 예약하고 직접 찾아가세요.</p>
+            <div class="hero-actions">
+              <a class="btn hero-button" href="#market">농산물 둘러보기 <span aria-hidden="true">↘</span>
+              </a>
+              <a class="hero-link" href="#how">이용 방법</a>
+            </div></div>
+          <div class="hero-card">
+            <div class="featured-label">소량 픽업 예시</div>
+            <div class="hero-art" aria-hidden="true">🧅</div>
+            <div class="featured-info">
+              <div>
+                <strong>한 끼에 쓸 양파 두 알</strong><small>춘천 · 판매자 지정 장소에서 수령</small>
+              </div>
+              <strong class="featured-price">1,500원</strong>
+            </div>
+            <button class="btn alt" onclick="openReserve('demo5')">양파 픽업 예약 체험 <span aria-hidden="true">↗</span>
+            </button>
+          </div></div></div>
+      <section id="market">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <h2>픽업 가능한 농산물</h2><p>지역과 판매 단위, 수령 장소를 보고 골라보세요.</p>
+            </div>
+            <span class="mini" id="count"></span>
+          </div>
+          <div class="filters">
+            <input id="search" placeholder="농산물이나 농가 이름 검색" oninput="render()" aria-label="상품 검색">
+            <select id="region" onchange="render()" aria-label="지역 선택">
+            <option value="all">전체 지역</option>
+            <option value="홍천">홍천</option>
+            <option value="춘천">춘천</option>
+            </select>
+            <select id="category" onchange="render()" aria-label="상품 분류">
+            <option value="all">전체 분류</option>
+            <option value="못난이 농산물">못난이 농산물</option>
+            <option value="소량 잉여 농산물">소량 잉여 농산물</option>
+            <option value="일반 농산물">일반 농산물</option>
+            </select>
+          </div>
+          <div class="grid" id="products"></div>
+          <p class="fine">시범 화면의 예시 상품이에요. 등록과 예약 요청은 현재 브라우저에 저장돼요.</p>
+        </div>
+      </section>
+      <section class="steps" id="how">
+        <div class="wrap">
+          <div class="section-head">
+            <div>
+              <h2>다시봄 이용 방법</h2><p>온라인 결제나 택배 없이, 동네에서 직접 만나요.</p>
+            </div></div>
+          <div class="step-grid">
+            <div class="step">
+              <b>01</b><h3>우리 동네 상품 찾기</h3><p>춘천·강원 지역의 오일장 또는 소규모 농가에서 판매하는 농산물을 찾아보세요.</p>
+            </div>
+            <div class="step">
+              <b>02</b><h3>예약하거나 직접 문의</h3><p>예약 신청서를 작성하거나, 판매자가 동의한 연락 수단으로 직접 문의해요.</p>
+            </div>
+            <div class="step">
+              <b>03</b><h3>만나서 수령·결제</h3><p>판매자와 약속한 오일장 또는 지정 장소에서 직접 상품을 확인하고 결제해요.</p>
+            </div></div></div>
+      </section>
+    </main>
+    <footer class="footer">
+      <div class="wrap">
+        <strong style="font-size:23px">🌱 다시봄</strong>
+        <p>못난이 농산물의 가치를 다시 보다. · 춘천·강원 시범 프로젝트</p>
+        <p>본 페이지는 개발용 시제품입니다. 실제 거래 중개 서비스로 운영하기 전 판매자 확인, 개인정보 보호, 운영 정책 등을 갖추어야 합니다.</p>
+      </div>
+    </footer>
+    <dialog id="sellerDialog">
+      <div class="modal-head">
+        <h2>판매자 참여 신청</h2>
+        <button class="close" aria-label="닫기" onclick="closeDialog('sellerDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice">판매자가 직접 등록하거나, 운영자가 인터뷰 후 대리 등록할 수 있어요. 실제 계정 발급과 인증은 정식 서비스에서 추가됩니다.</div>
+        <form onsubmit="registerSeller(event)">
+          <div class="field">
+            <label>판매자 또는 농가 이름</label>
+            <input name="name" required maxlength="40" placeholder="예: 봄날농장">
+          </div>
+          <div class="field">
+            <label>활동 지역</label>
+            <select name="region" required>
+            <option value="홍천">홍천</option>
+            <option value="춘천">춘천</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>등록 방식</label>
+            <select name="mode">
+            <option value="직접 등록">직접 등록</option>
+            <option value="관리자 대리 등록">관리자 대리 등록</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>주로 판매하는 농산물</label>
+            <input name="products" required maxlength="120" placeholder="예: 감자, 고구마, 대파">
+          </div>
+          <button class="btn" type="submit" style="width:100%">판매자 신청 저장</button>
+          <p class="fine">시범 버전에서는 입력 정보가 이 브라우저에만 보관돼요.</p>
+        </form>
+      </div>
+    </dialog>
+    <dialog id="addDialog">
+      <div class="modal-head">
+        <h2>농산물 등록</h2>
+        <button class="close" aria-label="닫기" onclick="closeDialog('addDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice">직접 등록과 관리자 대리 등록을 모두 시험할 수 있어요. 정식 버전에서는 판매자 인증 및 관리자 권한을 적용합니다.</div>
+        <form onsubmit="addProduct(event)">
+          <div class="field">
+            <label>등록 주체</label>
+            <select name="mode">
+            <option value="판매자 직접 등록">판매자 직접 등록</option>
+            <option value="관리자 대리 등록">관리자 대리 등록</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>농가 또는 판매자 이름</label>
+            <input name="seller" required maxlength="40" placeholder="예: 홍천 작은밭">
+          </div>
+          <div class="field">
+            <label>판매 지역</label>
+            <select name="region">
+            <option value="홍천">홍천</option>
+            <option value="춘천">춘천</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>농산물 이름</label>
+            <input name="name" required maxlength="40" placeholder="예: 못난이 감자">
+          </div>
+          <div class="field">
+            <label>상품 분류</label>
+            <select name="category">
+            <option>못난이 농산물</option>
+            <option>소량 잉여 농산물</option>
+            <option>일반 농산물</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>판매 가격(원)</label>
+            <input name="price" type="number" required min="0" max="10000000" placeholder="예: 3000">
+          </div>
+          <div class="field">
+            <label>판매 단위</label>
+            <input name="unit" required maxlength="25" placeholder="예: 1kg 또는 2개">
+          </div>
+          <div class="field">
+            <label>수령 장소</label>
+            <input name="place" required maxlength="100" placeholder="예: 홍천 오일장 (정확한 위치는 예약 후 협의)">
+          </div>
+          <div class="field">
+            <label>판매 설명</label>
+            <textarea name="description" maxlength="300" placeholder="상품 상태와 수령 가능 요일을 적어주세요.">
+            </textarea>
+          </div>
+          <div class="field">
+            <label>판매자 연락 수단 (공개에 동의한 경우만)</label>
+            <input name="phone" type="tel" maxlength="20" placeholder="예: 010-0000-0000 (선택)">
+          </div>
+          <div class="field">
+            <label>
+            <input type="checkbox" name="consent" style="width:auto"> 연락처 공개에 동의합니다 (선택)</label>
+          </div>
+          <button class="btn" type="submit" style="width:100%">농산물 등록</button>
+        </form>
+      </div>
+    </dialog>
+    <dialog id="reserveDialog">
+      <div class="modal-head">
+        <h2>예약 신청</h2>
+        <button class="close" aria-label="닫기" onclick="closeDialog('reserveDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <div id="reserveProduct" class="notice"></div>
+        <form onsubmit="reserve(event)">
+          <input type="hidden" name="id" id="reserveId">
+          <div class="field">
+            <label>신청자 이름 또는 별명</label><input name="customer" required maxlength="40">
+          </div>
+          <div class="field">
+            <label for="reserveQuantity">예약 묶음 수</label>
+            <input id="reserveQuantity" name="quantity" type="number" min="1" max="100" value="1" required>
+          </div>
+          <div class="field">
+            <label>희망 수령 날짜</label><input name="date" type="date" required>
+          </div>
+          <div class="field">
+            <label>판매자에게 남길 말</label>
+            <textarea name="message" maxlength="300" placeholder="예: 오후 2시쯤 수령할 수 있을까요?">
+            </textarea>
+          </div>
+          <output id="reserveTotal" class="notice reserve-total" for="reserveQuantity">
+          </output>
+          <button class="btn" style="width:100%" type="submit">예약 요청 저장</button>
+          <p class="fine">시제품에서는 판매자에게 자동 전송되지 않고, 이 브라우저에 요청이 저장됩니다. 실제 예약 확정이 아닙니다.</p>
+        </form>
+      </div>
+    </dialog>
+    <dialog id="contactDialog">
+      <div class="modal-head">
+        <h2>판매자 직접 문의</h2>
+        <button class="close" aria-label="닫기" onclick="closeDialog('contactDialog')">×</button>
+      </div>
+      <div class="modal-body" id="contactBody"></div>
+    </dialog>
+    <dialog id="adminDialog">
+      <div class="modal-head">
+        <h2>시범 운영 현황</h2>
+        <button class="close" aria-label="닫기" onclick="closeDialog('adminDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice">여기 보이는 정보는 현재 브라우저에서 저장한 시범 데이터입니다. 실제 관리자 인증이나 여러 사용자 간 데이터 공유는 아직 구현되지 않았습니다.</div>
+        <h3>판매자 참여 신청</h3>
+        <div id="sellerList"></div>
+        <h3>예약 요청</h3>
+        <div id="reservationList"></div>
+        <button class="btn alt" onclick="downloadData()">현재 데이터 내려받기 (JSON)</button>
+      </div>
+    </dialog>
+    <div class="toast" id="toast" role="status"></div>
+    <script>
+    const demo = [{
+      id : 'demo5',
+      name : '소량 양파',
+      region : '춘천',
+      seller : '춘천 작은밭',
+      category : '소량 잉여 농산물',
+      price : 1500,
+      unit : '2개',
+      place : '춘천 장학리 · 상세 위치 협의',
+      description : '한 끼에 사용할 만큼 양파 두 알씩 담았어요.',
+      emoji : '🧅',
+      phone : ''
+    }, {
+      id : 'demo1',
+      name : '못난이 감자',
+      region : '홍천',
+      seller : '홍천 작은밭',
+      category : '못난이 농산물',
+      price : 3000,
+      unit : '1kg',
+      place : '홍천 농가 · 상세 위치 협의',
+      description : '모양은 일정하지 않지만 맛있게 먹을 수 있는 감자예요.',
+      emoji : '🥔',
+      phone : ''
+    }, {
+      id : 'demo2',
+      name : '소량 대파',
+      region : '춘천',
+      seller : '춘천 봄장터',
+      category : '소량 잉여 농산물',
+      price : 1500,
+      unit : '2줄기',
+      place : '춘천 지역 · 수령 장소 협의',
+      description : '한 단이 부담스러울 때 필요한 만큼 구매해요.',
+      emoji : '🌿',
+      phone : ''
+    }, {
+      id : 'demo3',
+      name : '못난이 당근',
+      region : '홍천',
+      seller : '홍천 햇살농가',
+      category : '못난이 농산물',
+      price : 2000,
+      unit : '3개',
+      place : '홍천 농가 · 상세 위치 협의',
+      description : '크기와 모양이 조금씩 다른 당근이에요.',
+      emoji : '🥕',
+      phone : ''
+    }, {
+      id : 'demo4',
+      name : '소량 고구마',
+      region : '춘천',
+      seller : '춘천 작은농장',
+      category : '소량 잉여 농산물',
+      price : 3500,
+      unit : '1kg',
+      place : '춘천 지역 · 수령 장소 협의',
+      description : '소량으로 나눠 구매할 수 있는 고구마예요.',
+      emoji : '🍠',
+      phone : ''
+    }];
+    const key = 'dasibom-demo-v1';
+    const safeRead = (k) => {
+      try {
+        const v = JSON.parse(localStorage.getItem(key + '-' + k) || '[]');
+        return Array.isArray(v) ? v : []
+      }catch {
+        return []
+      }
+    };
+    const save = (k, v) => {
+      try {
+        localStorage.setItem(key + '-' + k, JSON.stringify(v));
+        return true
+      }catch {
+        notify('저장할 수 없어요. 브라우저 저장 공간을 확인해 주세요.');
+        return false
+      }
+    };
+    const products = () => [...safeRead('products'), ...demo];
+    const money = v => Number(v).toLocaleString('ko-KR') + '원';
+    const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({
+      '&' : '&amp;',
+      '<' : '&lt;',
+      '>' : '&gt;',
+      '"' : '&quot;',
+      "'" : '&#39;'
+    }[c]));
+    function render() {
+      const r = document.getElementById('region').value,
+      c = document.getElementById('category').value,
+      q = document.getElementById('search').value.trim().toLowerCase();
+      const list = products().filter(p => (r === 'all' || p.region === r) && (c === 'all' || p.category === c) 
+        && [p.name, p.seller, p.description].some(x => String(x).toLowerCase().includes(q)));
+      document.getElementById('count').textContent = list.length + '개 상품';
+      document.getElementById('products').innerHTML = list.length ? list.map(p => `\
+<article class="product"><div class="cover" data-product="${esc(p.name)}" aria-hidden="true">${p.emoji 
+        || '🥬'}</div><div class="detail"><div class="tags"><span class="tag">${esc(p.region)}\
+</span><span class="tag">${esc(p.category)}</span>${p.id.startsWith('demo') ? '<span class="tag">예시 상품</span>' 
+        : ''}</div><h3>${esc(p.name)}</h3><div class="meta">${esc(p.seller)}\
+</div><div class="price">${money(p.price)} <small style="font-size:13px;font-weight:500;color:var(--muted)">\
+/ ${esc(p.unit)}</small></div><p class="desc">${esc(p.description)}</p><div \
+class="pickup">픽업 · ${esc(p.place)}</div><div class="actions"><button class="btn" \
+onclick="openReserve('${p.id}')">예약 신청</button><button class="btn alt" onclick="openContact('${p.id}\
+')">직접 문의</button></div></div></article>`).join('') : '<div class="empty">조건에 맞는 농산물이 아직 없어요.</div>'
+    }
+    function showDialog(id) {
+      document.getElementById(id).showModal();
+      if(id === 'adminDialog')renderAdmin()
+    }
+    function closeDialog(id) {
+      document.getElementById(id).close()
+    }
+    function notify(message) {
+      const t = document.getElementById('toast');
+      t.textContent = message;
+      t.style.display = 'block';
+      clearTimeout(window.toastTimeout);
+      window.toastTimeout = setTimeout(() => t.style.display = 'none', 3800)
+    }
+    function registerSeller(e) {
+      e.preventDefault();
+      const x = Object.fromEntries(new FormData(e.target));
+      if(save('sellers', [...safeRead('sellers'), {
+        ...x,
+        createdAt : new Date().toISOString()
+      }])) {
+        closeDialog('sellerDialog');
+        e.target.reset();
+        notify('판매자 신청이 이 브라우저에 저장됐어요.')
+      }
+    }
+    function addProduct(e) {
+      e.preventDefault();
+      const x = Object.fromEntries(new FormData(e.target));
+      x.price = Number(x.price);
+      if(!Number.isFinite(x.price) || x.price < 0)return notify('가격을 확인해 주세요.');
+      x.id = 'own' + Date.now() + Math.random().toString(36).slice(2, 8);
+      x.emoji = ({
+        감자 : '🥔',
+        당근 : '🥕',
+        고구마 : '🍠',
+        토마토 : '🍅',
+        양파 : '🧅',
+        사과 : '🍎'
+      })[Object.keys({
+        감자 : 1,
+        당근 : 1,
+        고구마 : 1,
+        토마토 : 1,
+        양파 : 1,
+        사과 : 1
+      }).find(w => x.name.includes(w))] || '🥬';
+      x.phone = x.consent && /^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(x.phone) ? x.phone : '';
+      delete x.consent;
+      if(save('products', [x, ...safeRead('products')])) {
+        closeDialog('addDialog');
+        e.target.reset();
+        render();
+        notify('농산물을 등록했어요. 현재 브라우저에서만 표시됩니다.')
+      }
+    }
+    function openReserve(id) {
+      const p = products().find(p => p.id === id);
+      if(!p)return;
+      document.getElementById('reserveId').value = id;
+      document.getElementById('reserveProduct').textContent = p.name + ' · ' + money(p.price) + ' / ' + p.unit + '\n수령 장소 · ' + p.place;
+      const quantity = document.getElementById('reserveQuantity');
+      quantity.value = 1;
+      const updateTotal = () => {
+        document.getElementById('reserveTotal').textContent = quantity.value && quantity.validity.valid
+        ? quantity.value + '묶음 · 예상 현장 결제 ' + money(p.price * Number(quantity.value)) : '';
+      };
+      quantity.oninput = updateTotal;
+      updateTotal();
+      const inp = document.querySelector('#reserveDialog input[name=date]');
+      inp.min = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+      inp.value = '';
+      showDialog('reserveDialog')
+    }
+    function reserve(e) {
+      e.preventDefault();
+      const x = Object.fromEntries(new FormData(e.target));
+      const p = products().find(p => p.id === x.id);
+      if(!p)return notify('상품을 찾을 수 없습니다.');
+      if(save('reservations', [...safeRead('reservations'), {
+        ...x,
+        product : p.name,
+        unit : p.unit,
+        total : p.price * Number(x.quantity),
+        place : p.place,
+        createdAt : new Date().toISOString(),
+        status : '요청 저장(미전송)'
+      }])) {
+        closeDialog('reserveDialog');
+        e.target.reset();
+        notify('예약 요청이 시범 저장됐어요. 판매자에게 전송되지는 않았어요.')
+      }
+    }
+    function openContact(id) {
+      const p = products().find(p => p.id === id);
+      if(!p)return;
+      const body = document.getElementById('contactBody');
+      const phone = p.phone || '';
+      body.innerHTML = `<div class="notice">${esc(p.name)} · ${esc(p.seller)}\
+<br>수령 장소: ${esc(p.place)}</div>${phone ? `<p>판매자가 공개에 동의한 연락처로 직접 문의할 수 있어요.</p>\
+<p style="font-size:21px;font-weight:800">${esc(phone)}</p><div class="switch">\
+<a class="btn" href="tel:${phone.replace(/[^\d+]/g, '')}">전화 걸기</a><a class="btn \
+alt" href="sms:${phone.replace(/[^\d+]/g, '')}">문자 보내기</a></div>` : '<p>현재 공개된 연락처가 없어요. 시범 버전에서는 직접 문의 연결이 준비되지 않았습니다.</p><p class="fine">정식 서비스에서는 판매자가 연락처 공개에 동의하거나, 개인정보를 노출하지 않는 문의 중계 기능을 제공할 예정입니다.</p>'}`;
+      showDialog('contactDialog')
+    }
+    function renderAdmin() {
+      const s = safeRead('sellers'),
+      r = safeRead('reservations');
+      document.getElementById('sellerList').innerHTML = s.length ? '<ul class="dash-list">' + s.map(x => `\
+<li>${esc(x.name)} · ${esc(x.region)} · ${esc(x.mode)} (${esc(x.products)})</li>`).join('') + '</ul>' 
+        : '<p class="fine">아직 신청 내역이 없습니다.</p>';
+      document.getElementById('reservationList').innerHTML = r.length ? '<ul class="dash-list">' + r.map(x => `\
+<li>${esc(x.product)} · ${esc(x.customer)} · ${esc(x.quantity)}묶음${x.total == null ? '' : ' · ' + money(x.total)}\
+ · ${esc(x.date)} · ${esc(x.status)}</li>`).join('') + '</ul>' : '<p class="fine">아직 예약 요청이 없습니다.</p>'
+    }
+    function downloadData() {
+      const data = {
+        products : safeRead('products'),
+        sellers : safeRead('sellers'),
+        reservations : safeRead('reservations')
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], {
+        type : 'application/json'
+      }),
+      url = URL.createObjectURL(blob),
+      a = document.createElement('a');
+      a.href = url;
+      a.download = '다시봄-시범데이터.json';
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000)
+    }
+    render();
+  </script>
+  </body>
+</html>
