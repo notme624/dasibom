@@ -1,0 +1,448 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>다시봄 판매자 | 우리 농가 관리</title>
+    <link rel="stylesheet" href="assets/style.css">
+  </head>
+  <body class="seller-app">
+    <div class="portal-bar">
+      <div class="wrap">
+        <span>다시봄 판매자 웹 · 시범 운영</span>
+        <a href="index.html" target="_blank" rel="noopener">소비자 화면 열기 ↗</a>
+      </div>
+    </div>
+    <header>
+      <div class="wrap nav">
+        <a class="logo" href="seller.html" aria-label="다시봄 판매자 홈"><span class="brand-mark" aria-hidden="true">✿</span> 다시봄 <span class="seller-tag">판매자</span></a>
+        <div class="seller-who" id="sellerWho" hidden>
+          <label class="mini" for="sellerSelect">판매자</label>
+          <select id="sellerSelect" onchange="switchSeller(this.value)"></select>
+          <button class="btn" type="button" onclick="openAdd()">+ 농산물 올리기</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="wrap">
+      <!-- 판매자를 아직 고르지 않았을 때 -->
+      <section class="welcome" id="welcome" hidden>
+        <h1>다시봄 판매자 웹</h1>
+        <p class="lead">남은 농산물을 올리고, 들어온 예약을 확인·확정하는 곳이에요.</p>
+        <div class="field">
+          <label for="pickSeller">이미 등록한 판매자라면</label>
+          <select id="pickSeller"></select>
+        </div>
+        <button class="btn" type="button" style="width:100%" onclick="switchSeller(document.getElementById('pickSeller').value)">이 판매자로 시작하기</button>
+        <div class="or">또는 새로 참여하기</div>
+        <form onsubmit="registerSeller(event)">
+          <div class="field">
+            <label for="newSellerName">판매자 또는 농가 이름</label>
+            <input id="newSellerName" name="name" required maxlength="40" placeholder="예: 봄날농장">
+          </div>
+          <div class="field">
+            <label for="newSellerRegion">활동 지역</label>
+            <select id="newSellerRegion" name="region" required>
+              <option value="춘천">춘천</option>
+              <option value="홍천">홍천</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="newSellerMode">등록 방식</label>
+            <select id="newSellerMode" name="mode">
+              <option value="직접 등록">직접 등록</option>
+              <option value="관리자 대리 등록">관리자 대리 등록</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="newSellerProducts">주로 판매하는 농산물</label>
+            <input id="newSellerProducts" name="products" maxlength="120" placeholder="예: 감자, 고구마, 대파">
+          </div>
+          <button class="btn alt" type="submit" style="width:100%">판매자로 참여하기</button>
+          <p class="fine">시범 버전이라 로그인·인증 없이 이름만으로 시작해요. 정식 서비스에서는 판매자 인증을 추가합니다.</p>
+        </form>
+      </section>
+
+      <!-- 판매자 대시보드 -->
+      <section class="dash" id="dash" hidden>
+        <h1 id="hello"></h1>
+        <p class="lead">새 예약을 확인하고, 오늘 남은 농산물을 올려 보세요.</p>
+
+        <div class="stats">
+          <div class="stat hot"><small>확인 대기 예약</small><strong id="statWait">0</strong></div>
+          <div class="stat"><small>확정된 예약</small><strong id="statOk">0</strong></div>
+          <div class="stat"><small>판매 중인 상품</small><strong id="statOn">0</strong></div>
+          <div class="stat"><small>예상 매출 (확정·완료)</small><strong id="statSales">0원</strong></div>
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button class="tab" role="tab" id="tab-orders" aria-selected="true" onclick="showTab('orders')">예약 요청<span class="nav-count" id="waitCount"></span></button>
+          <button class="tab" role="tab" id="tab-products" aria-selected="false" onclick="showTab('products')">내 상품</button>
+          <button class="tab" role="tab" id="tab-admin" aria-selected="false" onclick="showTab('admin')">운영 도구</button>
+        </div>
+
+        <div class="panel" id="panel-orders" role="tabpanel">
+          <div class="panel-head">
+            <h2>들어온 예약</h2>
+            <div class="chips" id="orderFilter">
+              <button class="chip" type="button" data-f="all" aria-pressed="false" onclick="setFilter('all')">전체</button>
+              <button class="chip" type="button" data-f="requested" aria-pressed="true" onclick="setFilter('requested')">확인 대기</button>
+              <button class="chip" type="button" data-f="accepted" aria-pressed="false" onclick="setFilter('accepted')">확정</button>
+              <button class="chip" type="button" data-f="closed" aria-pressed="false" onclick="setFilter('closed')">완료·종료</button>
+            </div>
+          </div>
+          <div class="card-list" id="orderList"></div>
+        </div>
+
+        <div class="panel" id="panel-products" role="tabpanel" hidden>
+          <div class="panel-head">
+            <h2>내 상품</h2>
+            <button class="btn small" type="button" onclick="openAdd()">+ 농산물 올리기</button>
+          </div>
+          <div class="card-list" id="productList"></div>
+        </div>
+
+        <div class="panel" id="panel-admin" role="tabpanel" hidden>
+          <div class="panel-head"><h2>운영 도구</h2></div>
+          <div class="notice">시범 운영자가 쓰는 메뉴예요. 정식 서비스에서는 관리자 계정에서만 보이게 할 예정이에요.</div>
+          <h3>참여 판매자</h3>
+          <div id="sellerList"></div>
+          <h3>전체 예약</h3>
+          <div id="allOrders"></div>
+          <div class="admin-box">
+            <h3>시범 데이터</h3>
+            <p class="fine">지금까지 쌓인 상품·판매자·예약을 파일로 받거나, 시연 전에 처음 상태로 되돌릴 수 있어요.</p>
+            <div class="switch">
+              <button class="btn alt small" type="button" onclick="UI.download(Store.exportAll(), '다시봄-시범데이터.json')">데이터 내려받기 (JSON)</button>
+              <button class="btn danger small" type="button" onclick="resetDemo()">처음 상태로 초기화</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="addDialog">
+      <div class="modal-head">
+        <h2>농산물 올리기</h2>
+        <button class="close" type="button" aria-label="닫기" onclick="UI.close('addDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice" id="addWho"></div>
+        <form onsubmit="addProduct(event)">
+          <div class="field">
+            <label for="addMode">등록 주체</label>
+            <select id="addMode" name="mode">
+              <option value="판매자 직접 등록">판매자 직접 등록</option>
+              <option value="관리자 대리 등록">관리자 대리 등록</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="addRegion">판매 지역</label>
+            <select id="addRegion" name="region">
+              <option value="춘천">춘천</option>
+              <option value="홍천">홍천</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="addName">농산물 이름</label>
+            <input id="addName" name="name" required maxlength="40" placeholder="예: 못난이 감자">
+          </div>
+          <div class="field">
+            <label for="addCategory">상품 분류</label>
+            <select id="addCategory" name="category">
+              <option>못난이 농산물</option>
+              <option>소량 잉여 농산물</option>
+              <option>일반 농산물</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="addPrice">판매 가격(원)</label>
+            <input id="addPrice" name="price" type="number" required min="0" max="10000000" placeholder="예: 3000">
+          </div>
+          <div class="field">
+            <label for="addUnit">판매 단위</label>
+            <input id="addUnit" name="unit" required maxlength="25" placeholder="예: 1kg 또는 2개">
+          </div>
+          <div class="field">
+            <label for="addPlace">수령 장소</label>
+            <input id="addPlace" name="place" required maxlength="100" placeholder="예: 홍천 오일장 (정확한 위치는 예약 후 협의)">
+          </div>
+          <div class="field">
+            <label for="addDesc">판매 설명</label>
+            <textarea id="addDesc" name="description" maxlength="300" placeholder="상품 상태와 수령 가능 요일을 적어주세요."></textarea>
+          </div>
+          <div class="field">
+            <label for="addPhone">연락처 (공개에 동의한 경우만)</label>
+            <input id="addPhone" name="phone" type="tel" maxlength="20" placeholder="예: 010-0000-0000 (선택)">
+          </div>
+          <div class="field">
+            <label><input type="checkbox" name="consent" style="width:auto"> 소비자에게 연락처 공개에 동의합니다 (선택)</label>
+          </div>
+          <button class="btn" type="submit" style="width:100%">올리기</button>
+          <p class="fine">올리면 소비자 화면에 바로 나타나요.</p>
+        </form>
+      </div>
+    </dialog>
+
+    <dialog id="decideDialog">
+      <div class="modal-head">
+        <h2 id="decideTitle">예약 확정</h2>
+        <button class="close" type="button" aria-label="닫기" onclick="UI.close('decideDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="notice" id="decideInfo" style="white-space:pre-line"></div>
+        <form onsubmit="decide(event)">
+          <input type="hidden" name="id" id="decideId">
+          <input type="hidden" name="status" id="decideStatus">
+          <div class="field">
+            <label for="decideNote">소비자에게 보낼 말</label>
+            <textarea id="decideNote" name="note" maxlength="300"></textarea>
+          </div>
+          <button class="btn" type="submit" style="width:100%" id="decideBtn">확정하기</button>
+          <p class="fine">이 메시지는 소비자의 ‘내 예약’에 표시돼요.</p>
+        </form>
+      </div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status"></div>
+
+    <script src="assets/store.js"></script>
+    <script>
+      const Store = window.DasibomStore;
+      const UI = window.DasibomUI;
+      const esc = UI.esc, money = UI.money;
+      let me = Store.currentSeller();
+      let filter = 'requested';
+      let fresh = new Set(); // 방금 들어온 예약 강조용
+
+      function renderAll() {
+        renderSellerPickers();
+        const hasMe = !!me;
+        document.getElementById('welcome').hidden = hasMe;
+        document.getElementById('dash').hidden = !hasMe;
+        document.getElementById('sellerWho').hidden = !hasMe;
+        if (!hasMe) return;
+        document.getElementById('hello').textContent = `${me}님, 안녕하세요`;
+        renderStats();
+        renderOrders();
+        renderProducts();
+        renderAdmin();
+      }
+
+      function renderSellerPickers() {
+        const sellers = Store.sellers();
+        const options = sellers.map(s => `<option value="${esc(s.name)}"${s.name === me ? ' selected' : ''}>${esc(s.name)} · ${esc(s.region)}</option>`).join('');
+        document.getElementById('sellerSelect').innerHTML = options;
+        document.getElementById('pickSeller').innerHTML = options;
+      }
+
+      function switchSeller(name) {
+        if (!name) return;
+        me = name;
+        Store.setCurrentSeller(name);
+        fresh.clear();
+        renderAll();
+        window.scrollTo(0, 0);
+      }
+
+      function registerSeller(e) {
+        e.preventDefault();
+        const s = Store.addSeller(Object.fromEntries(new FormData(e.target)));
+        if (!s) return UI.notify('저장하지 못했어요. 다시 시도해 주세요.');
+        e.target.reset();
+        switchSeller(s.name);
+        UI.notify(`${s.name}님, 다시봄에 오신 걸 환영해요! 첫 농산물을 올려 보세요.`);
+      }
+
+      function myOrders() {
+        return Store.reservationsForSeller(me);
+      }
+
+      function renderStats() {
+        const orders = myOrders();
+        const wait = orders.filter(r => r.status === 'requested').length;
+        document.getElementById('statWait').textContent = wait;
+        document.getElementById('waitCount').textContent = wait ? wait : '';
+        document.getElementById('statOk').textContent = orders.filter(r => r.status === 'accepted').length;
+        document.getElementById('statOn').textContent = Store.productsBySeller(me).filter(p => p.status !== 'off').length;
+        document.getElementById('statSales').textContent = money(orders.filter(r => r.status === 'accepted' || r.status === 'done').reduce((a, r) => a + Number(r.total || 0), 0));
+      }
+
+      function setFilter(f) {
+        filter = f;
+        document.querySelectorAll('#orderFilter .chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.f === f)));
+        renderOrders();
+      }
+
+      function renderOrders() {
+        const list = myOrders().filter(r =>
+          filter === 'all' ? true :
+          filter === 'closed' ? ['done', 'declined', 'cancelled'].includes(r.status) :
+          r.status === filter
+        );
+        const emptyText = {
+          requested: '확인할 예약이 없어요. 새 예약이 들어오면 여기에 바로 나타나요.',
+          accepted: '확정된 예약이 없어요.',
+          closed: '완료되거나 종료된 예약이 없어요.',
+          all: '아직 들어온 예약이 없어요.'
+        }[filter];
+        document.getElementById('orderList').innerHTML = list.length ? list.map(r => `
+          <article class="r-card${fresh.has(r.id) ? ' is-new' : ''}">
+            <div class="r-emoji" aria-hidden="true">${r.emoji || '🥬'}</div>
+            <div>
+              <h3>${esc(r.product)} · ${esc(r.quantity)}묶음 <span class="mini">(${esc(r.unit)} 단위)</span></h3>
+              <div class="meta">
+                신청자 <b>${esc(r.customer)}</b> · 현장 결제 <b>${money(r.total)}</b><br>
+                수령 희망일 <b>${esc(UI.date(r.date))}</b> · ${esc(r.place)}
+              </div>
+              ${r.message ? `<p class="r-msg"><b>소비자</b> ${esc(r.message)}</p>` : ''}
+              ${r.sellerNote ? `<p class="r-msg seller"><b>보낸 말</b> ${esc(r.sellerNote)}</p>` : ''}
+              ${actionsFor(r)}
+            </div>
+            <div class="r-side">${UI.badge(r.status)}<span class="mini">${esc(UI.ago(r.createdAt))} 신청</span></div>
+          </article>`).join('') : `<div class="empty">${emptyText}</div>`;
+      }
+
+      function actionsFor(r) {
+        const id = esc(r.id);
+        if (r.status === 'requested') return `<div class="r-actions">
+          <button class="btn" type="button" onclick="openDecide('${id}','accepted')">예약 확정</button>
+          <button class="btn danger" type="button" onclick="openDecide('${id}','declined')">예약 불가</button></div>`;
+        if (r.status === 'accepted') return `<div class="r-actions">
+          <button class="btn" type="button" onclick="markDone('${id}')">수령 완료</button>
+          <button class="btn danger" type="button" onclick="openDecide('${id}','declined')">예약 취소</button></div>`;
+        return '';
+      }
+
+      function openDecide(id, status) {
+        const r = Store.reservations().find(x => x.id === id);
+        if (!r) return;
+        const ok = status === 'accepted';
+        document.getElementById('decideId').value = id;
+        document.getElementById('decideStatus').value = status;
+        document.getElementById('decideTitle').textContent = ok ? '예약 확정' : '예약 불가 안내';
+        document.getElementById('decideBtn').textContent = ok ? '확정하기' : '불가 안내 보내기';
+        document.getElementById('decideInfo').textContent = `${r.customer}님 · ${r.product} ${r.quantity}묶음\n수령 희망일 ${UI.date(r.date)} · ${r.place}`;
+        document.getElementById('decideNote').value = ok
+          ? `예약 확정됐어요. ${UI.date(r.date)}에 ${r.place.split('·')[0].trim()}에서 뵐게요!`
+          : '죄송해요, 이번에는 준비가 어려워요. 다음에 꼭 다시 찾아 주세요.';
+        UI.show('decideDialog');
+      }
+
+      function decide(e) {
+        e.preventDefault();
+        const x = Object.fromEntries(new FormData(e.target));
+        Store.updateReservation(x.id, { status: x.status, sellerNote: x.note });
+        UI.close('decideDialog');
+        fresh.delete(x.id);
+        renderAll();
+        UI.notify(x.status === 'accepted' ? '예약을 확정했어요. 소비자에게 바로 표시돼요.' : '예약 불가를 안내했어요.');
+      }
+
+      function markDone(id) {
+        Store.updateReservation(id, { status: 'done' });
+        renderAll();
+        UI.notify('수령 완료로 바꿨어요.');
+      }
+
+      function renderProducts() {
+        const list = Store.productsBySeller(me);
+        document.getElementById('productList').innerHTML = list.length ? list.map(p => `
+          <article class="p-row${p.status === 'off' ? ' is-off' : ''}">
+            <div class="r-emoji" aria-hidden="true" style="width:52px;height:52px;border-radius:12px;background:#efe8d4;display:grid;place-items:center;font-size:30px">${p.emoji || '🥬'}</div>
+            <div>
+              <h3>${esc(p.name)} ${p.status === 'off' ? '<span class="badge off">판매 중지</span>' : '<span class="badge ok">판매 중</span>'}</h3>
+              <div class="meta">${money(p.price)} / ${esc(p.unit)} · ${esc(p.category)} · ${esc(p.place)}</div>
+            </div>
+            <div class="p-actions">
+              ${p.status === 'off'
+                ? `<button class="btn small" type="button" onclick="toggleProduct('${esc(p.id)}','on')">다시 판매</button>`
+                : `<button class="btn alt small" type="button" onclick="toggleProduct('${esc(p.id)}','off')">판매 중지</button>`}
+              ${p.isDemo ? '' : `<button class="btn danger small" type="button" onclick="removeProduct('${esc(p.id)}')">삭제</button>`}
+            </div>
+          </article>`).join('') : '<div class="empty">아직 올린 농산물이 없어요.<br><button class="btn" type="button" style="margin-top:12px" onclick="openAdd()">첫 농산물 올리기</button></div>';
+      }
+
+      function toggleProduct(id, status) {
+        Store.updateProduct(id, { status });
+        renderAll();
+        UI.notify(status === 'off' ? '판매를 중지했어요. 소비자 화면에서 숨겨져요.' : '다시 판매를 시작했어요.');
+      }
+
+      function removeProduct(id) {
+        if (!window.confirm('이 상품을 삭제할까요? 되돌릴 수 없어요.')) return;
+        Store.removeProduct(id);
+        renderAll();
+        UI.notify('상품을 삭제했어요.');
+      }
+
+      function openAdd() {
+        if (!me) return;
+        const seller = Store.sellers().find(s => s.name === me);
+        document.getElementById('addWho').textContent = `${me} 이름으로 올라가요. 올리면 소비자 화면에 바로 나타나요.`;
+        if (seller && seller.region) document.getElementById('addRegion').value = seller.region;
+        UI.show('addDialog');
+      }
+
+      function addProduct(e) {
+        e.preventDefault();
+        const x = Object.fromEntries(new FormData(e.target));
+        x.price = Number(x.price);
+        if (!Number.isFinite(x.price) || x.price < 0) return UI.notify('가격을 확인해 주세요.');
+        x.phone = x.consent && /^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(x.phone || '') ? x.phone : '';
+        delete x.consent;
+        x.seller = me;
+        const p = Store.addProduct(x);
+        if (!p) return UI.notify('저장하지 못했어요. 다시 시도해 주세요.');
+        UI.close('addDialog');
+        e.target.reset();
+        showTab('products');
+        renderAll();
+        UI.notify(`${p.name}을(를) 올렸어요. 소비자 화면에 바로 보여요.`);
+      }
+
+      function renderAdmin() {
+        const sellers = Store.sellers();
+        document.getElementById('sellerList').innerHTML = '<ul class="dash-list">' + sellers.map(s => `
+          <li>${esc(s.name)} · ${esc(s.region)} · ${esc(s.mode)}${s.products ? ` (${esc(s.products)})` : ''} · 상품 ${Store.productsBySeller(s.name).length}개</li>`).join('') + '</ul>';
+        const all = Store.reservations();
+        document.getElementById('allOrders').innerHTML = all.length ? '<ul class="dash-list">' + all.map(r => `
+          <li>${esc(r.product)} · ${esc(r.seller)} ← ${esc(r.customer)} · ${esc(r.quantity)}묶음 · ${money(r.total)} · ${esc(UI.date(r.date))} · ${UI.badge(r.status)}</li>`).join('') + '</ul>'
+          : '<p class="fine">아직 예약이 없어요.</p>';
+      }
+
+      function resetDemo() {
+        if (!window.confirm('상품·판매자·예약을 모두 지우고 처음 예시 상태로 되돌릴까요?')) return;
+        Store.resetDemo();
+        me = null;
+        fresh.clear();
+        renderAll();
+        UI.notify('처음 상태로 초기화했어요.');
+      }
+
+      function showTab(name) {
+        ['orders', 'products', 'admin'].forEach(t => {
+          document.getElementById('tab-' + t).setAttribute('aria-selected', String(t === name));
+          document.getElementById('panel-' + t).hidden = t !== name;
+        });
+      }
+
+      // 소비자 웹에서 바뀐 내용 반영
+      Store.subscribe(prev => {
+        if (me && !Store.sellers().some(s => s.name === me)) me = null; // 다른 탭에서 초기화한 경우
+        if (me && prev) {
+          const oldIds = new Set(prev.reservations.map(r => r.id));
+          const oldStatus = Object.fromEntries(prev.reservations.map(r => [r.id, r.status]));
+          const incoming = myOrders().filter(r => !oldIds.has(r.id));
+          incoming.forEach(r => fresh.add(r.id));
+          if (incoming.length) UI.notify(`새 예약이 들어왔어요: ${incoming.map(r => `${r.customer}님 · ${r.product}`).join(', ')}`);
+          const cancelled = myOrders().filter(r => r.status === 'cancelled' && oldStatus[r.id] && oldStatus[r.id] !== 'cancelled');
+          if (cancelled.length) UI.notify(`${cancelled.map(r => r.customer).join(', ')}님이 예약을 취소했어요.`);
+        }
+        renderAll();
+      });
+
+      renderAll();
+    </script>
+  </body>
+</html>
