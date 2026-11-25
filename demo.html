@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>다시봄 | 시연 화면 (소비자 · 판매자 나란히)</title>
+    <link rel="stylesheet" href="assets/style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#244a35">
+    <style>
+      html, body { height:100%; margin:0 }
+      body { display:flex; flex-direction:column; background:#172f24 }
+      .demo-bar { display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:10px 16px; color:#e9efe2 }
+      .demo-bar h1 { font-size:17px; margin:0 8px 0 0; letter-spacing:-.03em; color:#fff }
+      .demo-bar .grow { flex:1 }
+      .demo-bar .btn { padding:8px 12px; font-size:13px; border-radius:10px }
+      .demo-bar .btn.ghost { color:#e9efe2; border:1px solid #4f6b5a; background:transparent }
+      .demo-bar .hint { font-size:12.5px; opacity:.85 }
+      .panes { flex:1; display:grid; grid-template-columns:1fr 1fr; gap:10px; padding:0 10px 10px; min-height:0 }
+      .pane { display:flex; flex-direction:column; min-height:0; background:#fff; border-radius:14px; overflow:hidden; padding:0 }
+      .pane-head { display:flex; justify-content:space-between; align-items:center; padding:8px 14px; font-size:13px; font-weight:800; background:#eef3ea; color:#244a35 }
+      .pane-head.seller { background:#f6e6da; color:#8a4a2a }
+      .pane-head a { font-weight:700; color:inherit; font-size:12px }
+      iframe { flex:1; width:100%; border:0; min-height:0; background:#fdfaf2 }
+      body.only-consumer .pane.s, body.only-seller .pane.c { display:none }
+      body.only-consumer .panes, body.only-seller .panes { grid-template-columns:1fr }
+      @media (max-width:900px) {
+        .panes { grid-template-columns:1fr; grid-auto-rows:minmax(560px, 1fr) }
+        body { height:auto }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="demo-bar">
+      <h1>✿ 다시봄 시연</h1>
+      <span class="hint">왼쪽에서 예약하면 오른쪽 판매자 화면에 바로 들어와요. 판매자가 확정하면 왼쪽 ‘내 예약’에 바로 표시돼요.</span>
+      <span class="grow"></span>
+      <button class="btn" type="button" onclick="seed()">시연 데이터 채우기</button>
+      <button class="btn ghost" type="button" onclick="resetAll()">처음 상태로</button>
+      <button class="btn ghost" type="button" id="viewBtn" onclick="cycleView()">나란히 보기</button>
+    </div>
+    <div class="panes">
+      <section class="pane c">
+        <div class="pane-head"><span>🛒 소비자 웹</span><a href="index.html" target="_blank" rel="noopener">새 창 ↗</a></div>
+        <iframe id="fc" src="index.html" title="다시봄 소비자 웹"></iframe>
+      </section>
+      <section class="pane s">
+        <div class="pane-head seller"><span>🧑‍🌾 판매자 웹</span><a href="seller.html" target="_blank" rel="noopener">새 창 ↗</a></div>
+        <iframe id="fs" src="seller.html" title="다시봄 판매자 웹"></iframe>
+      </section>
+    </div>
+    <script src="assets/store.js"></script>
+    <script>
+      const views = ['', 'only-consumer', 'only-seller'];
+      const labels = ['나란히 보기', '소비자만 보기', '판매자만 보기'];
+      let v = 0;
+      function cycleView() {
+        v = (v + 1) % views.length;
+        document.body.className = views[v];
+        document.getElementById('viewBtn').textContent = labels[v];
+      }
+      function reload() {
+        document.getElementById('fc').contentWindow.location.reload();
+        document.getElementById('fs').contentWindow.location.reload();
+      }
+      function seed() {
+        if (!confirm('지금 데이터를 지우고, 수령 완료·확정·확인 대기·노쇼 예약이 들어 있는 시연 데이터로 채울까요?')) return;
+        DasibomStore.seedScenario();
+        reload();
+      }
+      function resetAll() {
+        if (!confirm('모든 데이터를 지우고 처음 예시 상태로 되돌릴까요?')) return;
+        DasibomStore.resetDemo();
+        reload();
+      }
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+    </script>
+  </body>
+</html>

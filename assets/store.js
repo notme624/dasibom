@@ -201,6 +201,7 @@
         endDate: data.endDate || '',
         description: String(data.description || '').trim(),
         phone: data.phone || '',
+        photo: data.photo || '',
         emoji: Store.emojiFor(data.name),
         status: 'on',
         mode: data.mode || '판매자 직접 등록',
@@ -460,6 +461,71 @@
       ensureSeeded();
     },
 
+    /*
+     * 성과 지표: 다시봄이 지금까지 만든 변화
+     * (수령 완료된 예약 기준)
+     */
+    impact() {
+      const done = Store.reservations().filter(r => r.status === 'done');
+      const products = Store.products();
+      const cat = id => (products.find(p => p.id === id) || {}).category || '';
+      const activeSellers = new Set(products.filter(p => p.status !== 'off').map(p => p.seller));
+      return {
+        rescuedBundles: done.reduce((a, r) => a + Number(r.quantity), 0),
+        uglyBundles: done.filter(r => cat(r.productId) === '못난이 농산물').reduce((a, r) => a + Number(r.quantity), 0),
+        deals: done.length,
+        amount: done.reduce((a, r) => a + Number(r.total), 0),
+        farms: activeSellers.size,
+        sellers: Store.sellers().length,
+        onSale: Store.visibleProducts().filter(p => !Store.isSoldOut(p)).length,
+        noShowRate: (() => {
+          const closed = Store.reservations().filter(r => ['done', 'noshow'].includes(r.status)).length;
+          const ns = Store.reservations().filter(r => r.status === 'noshow').length;
+          return closed ? Math.round((ns / closed) * 100) : 0;
+        })()
+      };
+    },
+
+    /*
+     * 시연용 데이터: 발표·캡처할 때 여러 상태의 예약이 한눈에 보이도록 채워요.
+     * (기존 데이터는 지우고 다시 만들어요)
+     */
+    seedScenario() {
+      Store.resetDemo();
+      const t = today();
+      const book = (productId, customer, phone, quantity, slot, message) => {
+        const res = Store.addReservation({ productId, customer, phone, quantity, date: t, slot, message, privacy: true });
+        return res.reservation ? res.reservation.id : null;
+      };
+      // 수령 완료된 거래들 (성과 지표용)
+      const doneIds = [['demo1', '김하늘', '010-2001-0001', 2], ['demo3', '박서준', '010-2001-0002', 1], ['demo4', '윤조', '010-3003-0001', 1], ['demo2', '최유나', '010-2001-0004', 3], ['demo5', '이도윤', '010-2001-0003', 2], ['demo1', '한지우', '010-2001-0006', 1]]
+        .map(([pid, name, phone, q]) => {
+          const id = book(pid, name, phone, q, '09:00-12:00', '');
+          if (id) {
+            Store.updateReservation(id, { status: 'accepted', sellerNote: '예약 확정됐어요. 시간 맞춰 뵐게요!' });
+            Store.setReservationStatus(id, 'done', { sellerNote: '맛있게 드세요! 다음에 또 들러 주세요.' });
+          }
+          return id;
+        });
+      // 확정된 예약 (픽업 안내·출발 알림 화면용)
+      const a = book('demo5', '윤조', '010-3003-0001', 1, '15:00-18:00', '퇴근길에 들를게요!');
+      if (a) Store.updateReservation(a, { status: 'accepted', sellerNote: '예약 확정됐어요. 오후 3시~6시 사이에 마을회관 앞으로 오세요!' });
+      // 확인 대기 예약 (판매자 화면용)
+      book('demo5', '서하은', '010-3003-0002', 2, '12:00-15:00', '점심시간에 받으러 갈게요.');
+      book('demo5', '강태오', '010-3003-0003', 1, '09:00-12:00', '');
+      // 노쇼 1회 기록이 있는 소비자
+      const n = book('demo5', '임시우', '010-3003-0004', 1, '09:00-12:00', '');
+      if (n) {
+        Store.updateReservation(n, { status: 'accepted' });
+        Store.setReservationStatus(n, 'noshow', { sellerNote: '연락 없이 수령하지 않아 노쇼로 기록됐어요.' });
+      }
+      const again = book('demo5', '임시우', '010-3003-0004', 1, '15:00-18:00', '지난번엔 죄송했어요. 이번엔 꼭 갈게요.');
+      Store.setCurrentSeller('춘천 작은밭');
+      // 소비자 화면의 '내 예약'은 윤조님 예약만 보이게 (확정 1건 + 수령 완료 1건)
+      write('my-reservations', [a, doneIds[2]].filter(Boolean));
+      return { again };
+    },
+
     /* 화면 설정 (큰 글씨) */
     bigText() {
       return read('big-text', false) === true;
@@ -587,6 +653,35 @@
       const t = ((total % 1440) + 1440) % 1440;
       return `${String(Math.floor(t / 60)).padStart(2, '0')}:${String(t % 60).padStart(2, '0')}`;
     },
+    /*
+     * 휴대폰 사진은 커서 저장 공간을 많이 차지해요.
+     * 긴 쪽을 maxSize 픽셀로 줄이고 JPEG로 압축해서 돌려줘요.
+     */
+    shrinkImage(file, maxSize = 720, quality = 0.72) {
+      return new Promise((resolve, reject) => {
+        if (!file || !/^image\//.test(file.type)) return reject(new Error('사진 파일만 올릴 수 있어요.'));
+        const url = URL.createObjectURL(file);
+        const img = new Image();
+        img.onload = () => {
+          const scale = Math.min(1, maxSize / Math.max(img.width, img.height));
+          const c = document.createElement('canvas');
+          c.width = Math.round(img.width * scale);
+          c.height = Math.round(img.height * scale);
+          c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+          URL.revokeObjectURL(url);
+          resolve(c.toDataURL('image/jpeg', quality));
+        };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('사진을 읽지 못했어요.')); };
+        img.src = url;
+      });
+    },
+    // 상품 그림: 사진이 있으면 사진, 없으면 이모지
+    thumb(p, size = 52) {
+      const box = `width:${size}px;height:${size}px;border-radius:12px;flex:none;`;
+      return p && p.photo
+        ? `<img src="${UI.esc(p.photo)}" alt="" style="${box}object-fit:cover;display:block">`
+        : `<div style="${box}background:#efe8d4;display:grid;place-items:center;font-size:${Math.round(size * 0.58)}px" aria-hidden="true">${(p && p.emoji) || '🥬'}</div>`;
+    },
     show(id) {
       document.getElementById(id).showModal();
     },
@@ -614,6 +709,32 @@
     },
     download(data, filename) {
       UI.downloadText(JSON.stringify(data, null, 2), filename, 'application/json');
+    },
+    /*
+     * 앱으로 설치: 안드로이드·크롬은 설치 창을 띄우고,
+     * 아이폰은 '공유 → 홈 화면에 추가' 방법을 알려 줘요.
+     */
+    initInstall(buttonId) {
+      const b = document.getElementById(buttonId);
+      if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+      if (!b) return;
+      const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+      if (standalone) { b.hidden = true; return; }
+      let deferred = null;
+      window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); deferred = e; });
+      window.addEventListener('appinstalled', () => { b.hidden = true; UI.notify('다시봄을 설치했어요. 홈 화면에서 열어 보세요.'); });
+      b.onclick = async () => {
+        if (deferred) {
+          deferred.prompt();
+          await deferred.userChoice.catch(() => null);
+          deferred = null;
+          return;
+        }
+        const ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+        UI.notify(ios
+          ? '사파리 아래쪽 공유 버튼(□↑)을 누르고 ‘홈 화면에 추가’를 고르면 앱처럼 설치돼요.'
+          : '브라우저 메뉴(⋮)에서 ‘앱 설치’ 또는 ‘홈 화면에 추가’를 고르면 앱처럼 설치돼요.');
+      };
     },
     // 큰 글씨 버튼 공통
     initBigText(buttonId) {

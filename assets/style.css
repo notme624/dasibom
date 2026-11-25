@@ -1348,3 +1348,77 @@ table.bulk .del {
     margin-top:6px
   }
 }
+
+/* 상품 사진 */
+.product .cover.photo,#market .cover.photo {
+  background-size:cover;
+  background-position:center;
+  background-color:#edf3e8;
+  font-size:0
+}
+
+/* 성과 지표 */
+.impact {
+  padding:34px 0 6px
+}
+.impact h2 {
+  font-size:24px;
+  letter-spacing:-.05em;
+  margin:0 0 14px
+}
+.impact-grid {
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:12px;
+  margin-bottom:6px
+}
+.impact-item {
+  background:#fffef9;
+  border:1px solid #e5e6d9;
+  border-radius:16px;
+  padding:16px 18px;
+  display:flex;
+  flex-direction:column;
+  gap:2px
+}
+.impact-item .ic {
+  font-size:24px
+}
+.impact-item strong {
+  font-size:26px;
+  letter-spacing:-.04em;
+  color:#244a35
+}
+.impact-item b {
+  font-size:14px
+}
+.impact-item small {
+  font-size:12.5px;
+  color:var(--muted)
+}
+.install-link {
+  background:none;
+  border:0;
+  padding:0;
+  font:inherit;
+  cursor:pointer
+}
+@media(max-width:760px) {
+  .impact-grid {
+    grid-template-columns:repeat(2,1fr)
+  }
+  .impact-item strong {
+    font-size:21px
+  }
+}
+/* 내용을 채운 줄에서는 회색 예시 글자를 숨겨 실제 값과 헷갈리지 않게 */
+table.bulk tr:has(input[data-k=name]:not(:placeholder-shown)) input::placeholder,
+table.bulk tr.bad input::placeholder {
+  color:transparent
+}
+/* 휴대폰에서는 판매자 머리글이 화면을 가리지 않게 함께 스크롤 */
+@media(max-width:760px) {
+  body.seller-app header {
+    position:static
+  }
+}

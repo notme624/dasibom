@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>다시봄 | 가까운 농산물을 필요한 만큼</title>
     <link rel="stylesheet" href="assets/style.css">
+    <link rel="manifest" href="manifest.webmanifest">
+    <meta name="theme-color" content="#244a35">
+    <link rel="icon" href="assets/icons/icon-192.png">
+    <link rel="apple-touch-icon" href="assets/icons/icon-apple-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="다시봄">
+    <meta name="description" content="춘천·강원 소규모 농가의 못난이·잉여 농산물을 필요한 만큼 예약하고 가까운 곳에서 직접 받는 직거래 서비스">
   </head>
   <body>
     <div class="portal-bar">
@@ -33,6 +41,7 @@
             <div class="hero-actions">
               <a class="btn hero-button" href="#market">농산물 둘러보기 <span aria-hidden="true">↘</span></a>
               <a class="hero-link" href="#how">이용 방법</a>
+              <button class="hero-link install-link" type="button" id="installBtn">📱 앱으로 설치</button>
             </div>
           </div>
           <div class="hero-card">
@@ -48,6 +57,14 @@
           </div>
         </div>
       </div>
+
+      <section class="impact" aria-labelledby="impactTitle">
+        <div class="wrap">
+          <h2 id="impactTitle">다시봄이 지금까지 만든 변화</h2>
+          <div class="impact-grid" id="impactGrid"></div>
+          <p class="fine" id="impactNote"></p>
+        </div>
+      </section>
 
       <section id="market">
         <div class="wrap">
@@ -207,7 +224,7 @@
           const s = Store.seller(p.seller);
           return `
           <article class="product${highlight.has(p.id) ? ' is-new' : ''}${out ? ' is-soldout' : ''}">
-            <div class="cover" data-product="${esc(p.name)}" aria-hidden="true">${p.emoji || '🥬'}</div>
+            ${p.photo ? `<div class="cover photo" role="img" aria-label="${esc(p.name)} 사진" style="background-image:url('${esc(p.photo)}')"></div>` : `<div class="cover" data-product="${esc(p.name)}" aria-hidden="true">${p.emoji || '🥬'}</div>`}
             <div class="detail">
               <div class="tags">
                 <span class="tag">${esc(p.region)}</span>
@@ -230,6 +247,20 @@
           </article>`;
         }).join('') : '<div class="empty">조건에 맞는 농산물이 아직 없어요.</div>';
         renderMineCount();
+        renderImpact();
+      }
+
+      function renderImpact() {
+        const m = Store.impact();
+        const items = [
+          ['🥕', `${m.rescuedBundles}묶음`, '버려질 뻔한 농산물 구출', m.uglyBundles ? `그중 못난이 ${m.uglyBundles}묶음` : '수령 완료 기준'],
+          ['🤝', `${m.deals}건`, '동네 직거래 성사', '택배·포장재 없이 직접 수령'],
+          ['💰', money(m.amount), '농가에 돌아간 금액', '중개 수수료 0원 (시범 운영)'],
+          ['🧑‍🌾', `${m.farms}곳`, '함께하는 농가', `지금 예약 가능한 상품 ${m.onSale}개`]
+        ];
+        document.getElementById('impactGrid').innerHTML = items.map(([ic, n, label, sub]) => `
+          <div class="impact-item"><span class="ic" aria-hidden="true">${ic}</span><strong>${esc(n)}</strong><b>${esc(label)}</b><small>${esc(sub)}</small></div>`).join('');
+        document.getElementById('impactNote').textContent = '시범 운영 데이터예요. 이 브라우저에 저장된 거래를 기준으로 계산해요.';
       }
 
       function sellerBox(p) {
@@ -412,7 +443,7 @@
           }
           return `
           <article class="r-card">
-            <div class="r-emoji" aria-hidden="true">${r.emoji || '🥬'}</div>
+            ${UI.thumb(Store.product(r.productId) || { emoji: r.emoji })}
             <div>
               <h3>${esc(r.product)} · ${esc(r.quantity)}묶음</h3>
               <div class="meta">
@@ -461,6 +492,7 @@
       });
 
       UI.initBigText('bigTextBtn');
+      UI.initInstall('installBtn');
       Store.myReservations().forEach(r => (seenStatus[r.id] = r.status));
       render();
     </script>

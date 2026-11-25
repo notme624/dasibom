@@ -5,6 +5,14 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <title>다시봄 판매자 | 우리 농가 관리</title>
     <link rel="stylesheet" href="assets/style.css">
+    <link rel="manifest" href="seller.webmanifest">
+    <meta name="theme-color" content="#244a35">
+    <link rel="icon" href="assets/icons/seller-192.png">
+    <link rel="apple-touch-icon" href="assets/icons/seller-apple-180.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-title" content="다시봄 판매자">
+    <meta name="description" content="춘천·강원 소규모 농가의 못난이·잉여 농산물을 필요한 만큼 예약하고 가까운 곳에서 직접 받는 직거래 서비스">
   </head>
   <body class="seller-app">
     <div class="portal-bar">
@@ -17,6 +25,7 @@
       <div class="wrap nav">
         <a class="logo" href="seller.html" aria-label="다시봄 판매자 홈"><span class="brand-mark" aria-hidden="true">✿</span> 다시봄 <span class="seller-tag">판매자</span></a>
         <div class="seller-who">
+          <button class="btn ghost small" type="button" id="installBtn">📱 앱 설치</button>
           <button class="btn ghost small" type="button" id="bigTextBtn" aria-pressed="false">큰 글씨</button>
           <span id="sellerWho" class="seller-who" hidden>
             <label class="mini" for="sellerSelect">판매자</label>
@@ -151,6 +160,8 @@
         <div class="panel" id="panel-admin" role="tabpanel" hidden>
           <div class="panel-head"><h2>운영 도구</h2></div>
           <div class="notice">시범 운영자가 쓰는 메뉴예요. 정식 서비스에서는 관리자 계정에서만 보이게 할 예정이에요.</div>
+          <h3>성과 지표</h3>
+          <div class="impact-grid" id="adminImpact"></div>
           <h3>노쇼·차단 관리</h3>
           <p class="fine" id="policyNote"></p>
           <ul class="dash-list block-list" id="customerList"></ul>
@@ -236,6 +247,11 @@
           <div class="field">
             <label for="addEnd">판매 종료일 (선택)</label>
             <input id="addEnd" name="endDate" type="date">
+          </div>
+          <div class="field">
+            <label for="addPhoto">상품 사진 (선택 · 실제 상태가 보이게 찍어 주세요)</label>
+            <input id="addPhoto" type="file" accept="image/*" onchange="pickPhoto(this)">
+            <div id="photoPreview" style="margin-top:8px"></div>
           </div>
           <div class="field">
             <label for="addDesc">판매 설명</label>
@@ -453,7 +469,7 @@
         }[filter];
         document.getElementById('orderList').innerHTML = list.length ? list.map(r => `
           <article class="r-card${fresh.has(r.id) ? ' is-new' : ''}">
-            <div class="r-emoji" aria-hidden="true">${r.emoji || '🥬'}</div>
+            ${UI.thumb(Store.product(r.productId) || { emoji: r.emoji })}
             <div>
               <h3>${esc(r.product)} · ${esc(r.quantity)}묶음 <span class="mini">(${esc(r.unit)} 단위)</span></h3>
               <div class="meta">
@@ -560,7 +576,7 @@
           const ended = p.endDate && p.endDate < t;
           return `
           <article class="p-row${p.status === 'off' || ended ? ' is-off' : ''}">
-            <div class="r-emoji" aria-hidden="true" style="width:52px;height:52px;border-radius:12px;background:#efe8d4;display:grid;place-items:center;font-size:30px">${p.emoji || '🥬'}</div>
+            ${UI.thumb(p)}
             <div>
               <h3>${esc(p.name)} ${p.status === 'off' ? '<span class="badge off">판매 중지</span>' : ended ? '<span class="badge off">판매 종료</span>' : '<span class="badge ok">판매 중</span>'} ${stockText(p)}</h3>
               <div class="meta">${money(p.price)} / ${esc(p.unit)} · ${esc(p.category)} · 원산지 ${esc(p.origin || '-')}<br>${esc(p.place)}${p.endDate ? ` · ${esc(UI.date(p.endDate))}까지` : ''}</div>
@@ -626,6 +642,8 @@
         document.getElementById('addRegion').value = (prefill && prefill.region) || (seller && seller.region) || '춘천';
         document.getElementById('addEnd').min = UI.today();
         renderSlotChoices((prefill && prefill.slots) || Store.SLOTS.slice(0, 3));
+        pendingPhoto = (prefill && prefill.photo) || '';
+        paintPhoto();
         if (prefill) {
           ['name', 'category', 'price', 'unit', 'origin', 'place', 'placeDetail', 'description', 'mode'].forEach(k => {
             if (f.elements[k] && prefill[k] !== undefined) f.elements[k].value = prefill[k];
@@ -640,6 +658,24 @@
         }
         UI.show('addDialog');
         (prefill ? f.elements.stock : f.elements.name).focus();
+      }
+
+      let pendingPhoto = '';
+      function paintPhoto() {
+        document.getElementById('photoPreview').innerHTML = pendingPhoto
+          ? `<div style="display:flex;gap:10px;align-items:center"><img src="${esc(pendingPhoto)}" alt="상품 사진 미리보기" style="width:96px;height:96px;object-fit:cover;border-radius:12px"><button class="btn ghost small" type="button" onclick="pendingPhoto='';document.getElementById('addPhoto').value='';paintPhoto()">사진 빼기</button></div>`
+          : '';
+      }
+      async function pickPhoto(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        try {
+          pendingPhoto = await UI.shrinkImage(file);
+          paintPhoto();
+        } catch (err) {
+          input.value = '';
+          showError('addError', err.message);
+        }
       }
 
       function relist(id) {
@@ -659,8 +695,9 @@
         x.phone = f.consent.checked && Store.Check.phone(x.phone) ? x.phone : '';
         delete x.consent;
         x.seller = me;
+        x.photo = pendingPhoto;
         const p = Store.addProduct(x);
-        if (!p) return showError('addError', '저장하지 못했어요. 다시 시도해 주세요.');
+        if (!p) return showError('addError', pendingPhoto ? '저장 공간이 부족해요. 사진을 빼거나 다른 사진으로 다시 시도해 주세요.' : '저장하지 못했어요. 다시 시도해 주세요.');
         UI.close('addDialog');
         showTab('products');
         renderAll();
@@ -899,6 +936,13 @@
 
       /* ---------- 운영 도구 ---------- */
       function renderAdmin() {
+        const m = Store.impact();
+        document.getElementById('adminImpact').innerHTML = [
+          ['구출한 농산물', `${m.rescuedBundles}묶음`, `못난이 ${m.uglyBundles}묶음`],
+          ['직거래 성사', `${m.deals}건`, `거래액 ${money(m.amount)}`],
+          ['참여 판매자', `${m.sellers}곳`, `판매 중 농가 ${m.farms}곳`],
+          ['노쇼 비율', `${m.noShowRate}%`, '수령 완료+노쇼 중 노쇼']
+        ].map(([label, n, sub]) => `<div class="impact-item"><b>${esc(label)}</b><strong>${esc(n)}</strong><small>${esc(sub)}</small></div>`).join('');
         document.getElementById('policyNote').textContent =
           `규칙: 노쇼 ${Store.POLICY.noShowLimit}회가 되면 다시봄 전체에서 자동으로 예약이 제한돼요. 운영자가 직접 차단하거나 해제할 수 있어요.`;
         const cs = Object.entries(Store.customers()).sort((a, b) => (b[1].noShows || 0) - (a[1].noShows || 0));
@@ -968,6 +1012,7 @@
       });
 
       UI.initBigText('bigTextBtn');
+      UI.initInstall('installBtn');
       renderAll();
     </script>
   </body>
