@@ -16,10 +16,14 @@
     <header>
       <div class="wrap nav">
         <a class="logo" href="seller.html" aria-label="다시봄 판매자 홈"><span class="brand-mark" aria-hidden="true">✿</span> 다시봄 <span class="seller-tag">판매자</span></a>
-        <div class="seller-who" id="sellerWho" hidden>
-          <label class="mini" for="sellerSelect">판매자</label>
-          <select id="sellerSelect" onchange="switchSeller(this.value)"></select>
-          <button class="btn" type="button" onclick="openAdd()">+ 농산물 올리기</button>
+        <div class="seller-who">
+          <button class="btn ghost small" type="button" id="bigTextBtn" aria-pressed="false">큰 글씨</button>
+          <span id="sellerWho" class="seller-who" hidden>
+            <label class="mini" for="sellerSelect">판매자</label>
+            <select id="sellerSelect" onchange="switchSeller(this.value)"></select>
+            <button class="btn alt small" type="button" onclick="openBulk()">여러 개 한 번에</button>
+            <button class="btn small" type="button" onclick="openAdd()">+ 농산물 올리기</button>
+          </span>
         </div>
       </div>
     </header>
@@ -30,12 +34,18 @@
         <h1>다시봄 판매자 웹</h1>
         <p class="lead">남은 농산물을 올리고, 들어온 예약을 확인·확정하는 곳이에요.</p>
         <div class="field">
-          <label for="pickSeller">이미 등록한 판매자라면</label>
+          <label for="pickSeller">이미 참여한 판매자라면</label>
           <select id="pickSeller"></select>
         </div>
         <button class="btn" type="button" style="width:100%" onclick="switchSeller(document.getElementById('pickSeller').value)">이 판매자로 시작하기</button>
         <div class="or">또는 새로 참여하기</div>
-        <form onsubmit="registerSeller(event)">
+        <form id="joinForm" onsubmit="registerSeller(event)" novalidate>
+          <div class="type-pick">
+            <label><input type="radio" name="type" value="personal" checked onchange="toggleBiz()"> <b>일반 판매자</b>
+              <small>개인 농가. 사업자등록 없이 연락처 확인만으로 시작해요. 소량을 가끔 파는 농가에 맞아요.</small></label>
+            <label><input type="radio" name="type" value="business" onchange="toggleBiz()"> <b>사업자 판매자</b>
+              <small>사업자등록이 있는 농가·상인. 사업자 정보가 소비자에게 표시되고 ‘사업자 판매자’ 배지가 붙어요.</small></label>
+          </div>
           <div class="field">
             <label for="newSellerName">판매자 또는 농가 이름</label>
             <input id="newSellerName" name="name" required maxlength="40" placeholder="예: 봄날농장">
@@ -48,18 +58,40 @@
             </select>
           </div>
           <div class="field">
-            <label for="newSellerMode">등록 방식</label>
-            <select id="newSellerMode" name="mode">
-              <option value="직접 등록">직접 등록</option>
-              <option value="관리자 대리 등록">관리자 대리 등록</option>
-            </select>
+            <label for="newSellerPhone">연락처 (필수 · 다시봄이 확인해요)</label>
+            <input id="newSellerPhone" name="phone" type="tel" required maxlength="20" placeholder="010-1234-5678">
           </div>
           <div class="field">
-            <label for="newSellerProducts">주로 판매하는 농산물</label>
+            <label for="newSellerEmail">전자우편 (선택)</label>
+            <input id="newSellerEmail" name="email" type="email" maxlength="80" placeholder="farm@example.com">
+          </div>
+          <div id="bizFields" hidden>
+            <div class="field">
+              <label for="newBizName">상호</label>
+              <input id="newBizName" name="bizName" maxlength="40">
+            </div>
+            <div class="field">
+              <label for="newBizNumber">사업자등록번호</label>
+              <input id="newBizNumber" name="bizNumber" maxlength="12" placeholder="123-45-67890">
+            </div>
+            <div class="field">
+              <label for="newMailOrder">통신판매업 신고번호 (있다면)</label>
+              <input id="newMailOrder" name="mailOrderNumber" maxlength="40" placeholder="예: 제2026-강원춘천-0000호">
+            </div>
+          </div>
+          <div class="field">
+            <label for="newSellerProducts">주로 판매하는 농산물 (선택)</label>
             <input id="newSellerProducts" name="products" maxlength="120" placeholder="예: 감자, 고구마, 대파">
           </div>
+          <div class="field">
+            <label>원산지 표시제도 안내 (필수 확인)</label>
+            <div class="origin-notice" id="originNotice"></div>
+            <label class="check-row"><input type="checkbox" name="originNotice"> <span>원산지 표시제도 안내를 읽고 확인했어요.</span></label>
+          </div>
+          <label class="check-row"><input type="checkbox" name="agreeTerms"> <span>(필수) <a href="terms.html#terms" target="_blank" rel="noopener">판매자 이용약관</a>과 <a href="terms.html#privacy" target="_blank" rel="noopener">개인정보 처리방침</a>에 동의해요.</span></label>
+          <p id="joinError" class="policy" style="display:none;background:#fdf1ee;border-color:#ecc9bf;color:#8f3a26"></p>
           <button class="btn alt" type="submit" style="width:100%">판매자로 참여하기</button>
-          <p class="fine">시범 버전이라 로그인·인증 없이 이름만으로 시작해요. 정식 서비스에서는 판매자 인증을 추가합니다.</p>
+          <p class="fine">시범 버전이라 로그인 없이 시작해요. 정식 서비스에서는 휴대폰 본인 확인으로 로그인해요.</p>
         </form>
       </section>
 
@@ -71,13 +103,14 @@
         <div class="stats">
           <div class="stat hot"><small>확인 대기 예약</small><strong id="statWait">0</strong></div>
           <div class="stat"><small>확정된 예약</small><strong id="statOk">0</strong></div>
-          <div class="stat"><small>판매 중인 상품</small><strong id="statOn">0</strong></div>
+          <div class="stat"><small>판매 중 · 품절</small><strong id="statOn">0</strong></div>
           <div class="stat"><small>예상 매출 (확정·완료)</small><strong id="statSales">0원</strong></div>
         </div>
 
         <div class="tabs" role="tablist">
           <button class="tab" role="tab" id="tab-orders" aria-selected="true" onclick="showTab('orders')">예약 요청<span class="nav-count" id="waitCount"></span></button>
           <button class="tab" role="tab" id="tab-products" aria-selected="false" onclick="showTab('products')">내 상품</button>
+          <button class="tab" role="tab" id="tab-me" aria-selected="false" onclick="showTab('me')">내 정보</button>
           <button class="tab" role="tab" id="tab-admin" aria-selected="false" onclick="showTab('admin')">운영 도구</button>
         </div>
 
@@ -91,27 +124,43 @@
               <button class="chip" type="button" data-f="closed" aria-pressed="false" onclick="setFilter('closed')">완료·종료</button>
             </div>
           </div>
+          <p class="fine" id="expireNote"></p>
           <div class="card-list" id="orderList"></div>
         </div>
 
         <div class="panel" id="panel-products" role="tabpanel" hidden>
           <div class="panel-head">
             <h2>내 상품</h2>
-            <button class="btn small" type="button" onclick="openAdd()">+ 농산물 올리기</button>
+            <div class="switch">
+              <button class="btn alt small" type="button" onclick="openBulk()">여러 개 한 번에 올리기</button>
+              <button class="btn small" type="button" onclick="openAdd()">+ 농산물 올리기</button>
+            </div>
           </div>
           <div class="card-list" id="productList"></div>
+        </div>
+
+        <div class="panel" id="panel-me" role="tabpanel" hidden>
+          <div class="panel-head"><h2>내 정보</h2></div>
+          <dl class="info-grid" id="meInfo"></dl>
+          <div id="meBizAction"></div>
+          <h3>내가 차단한 소비자</h3>
+          <p class="fine">차단한 번호는 내 상품을 예약할 수 없어요. 다른 판매자 상품에는 영향이 없어요.</p>
+          <ul class="dash-list block-list" id="myBlocks"></ul>
         </div>
 
         <div class="panel" id="panel-admin" role="tabpanel" hidden>
           <div class="panel-head"><h2>운영 도구</h2></div>
           <div class="notice">시범 운영자가 쓰는 메뉴예요. 정식 서비스에서는 관리자 계정에서만 보이게 할 예정이에요.</div>
+          <h3>노쇼·차단 관리</h3>
+          <p class="fine" id="policyNote"></p>
+          <ul class="dash-list block-list" id="customerList"></ul>
           <h3>참여 판매자</h3>
           <div id="sellerList"></div>
           <h3>전체 예약</h3>
           <div id="allOrders"></div>
           <div class="admin-box">
             <h3>시범 데이터</h3>
-            <p class="fine">지금까지 쌓인 상품·판매자·예약을 파일로 받거나, 시연 전에 처음 상태로 되돌릴 수 있어요.</p>
+            <p class="fine">지금까지 쌓인 상품·판매자·예약·노쇼 기록을 파일로 받거나, 시연 전에 처음 상태로 되돌릴 수 있어요.</p>
             <div class="switch">
               <button class="btn alt small" type="button" onclick="UI.download(Store.exportAll(), '다시봄-시범데이터.json')">데이터 내려받기 (JSON)</button>
               <button class="btn danger small" type="button" onclick="resetDemo()">처음 상태로 초기화</button>
@@ -121,14 +170,15 @@
       </section>
     </main>
 
+    <!-- 농산물 하나 올리기 / 다시 올리기 -->
     <dialog id="addDialog">
       <div class="modal-head">
-        <h2>농산물 올리기</h2>
+        <h2 id="addTitle">농산물 올리기</h2>
         <button class="close" type="button" aria-label="닫기" onclick="UI.close('addDialog')">×</button>
       </div>
       <div class="modal-body">
         <div class="notice" id="addWho"></div>
-        <form onsubmit="addProduct(event)">
+        <form id="addForm" onsubmit="addProduct(event)" novalidate>
           <div class="field">
             <label for="addMode">등록 주체</label>
             <select id="addMode" name="mode">
@@ -138,7 +188,7 @@
           </div>
           <div class="field">
             <label for="addRegion">판매 지역</label>
-            <select id="addRegion" name="region">
+            <select id="addRegion" name="region" onchange="suggestOrigin()">
               <option value="춘천">춘천</option>
               <option value="홍천">홍천</option>
             </select>
@@ -160,30 +210,84 @@
             <input id="addPrice" name="price" type="number" required min="0" max="10000000" placeholder="예: 3000">
           </div>
           <div class="field">
-            <label for="addUnit">판매 단위</label>
+            <label for="addUnit">판매 단위 (한 묶음)</label>
             <input id="addUnit" name="unit" required maxlength="25" placeholder="예: 1kg 또는 2개">
           </div>
           <div class="field">
-            <label for="addPlace">수령 장소</label>
-            <input id="addPlace" name="place" required maxlength="100" placeholder="예: 홍천 오일장 (정확한 위치는 예약 후 협의)">
+            <label for="addStock">준비한 수량 (묶음 수)</label>
+            <input id="addStock" name="stock" type="number" required min="1" max="9999" placeholder="예: 10">
+          </div>
+          <div class="field">
+            <label for="addOrigin">원산지</label>
+            <input id="addOrigin" name="origin" required maxlength="40" placeholder="예: 국내산(강원 춘천)">
+          </div>
+          <div class="field">
+            <label for="addPlace">수령 장소 (누구나 보는 대략적인 위치)</label>
+            <input id="addPlace" name="place" required maxlength="100" placeholder="예: 홍천 오일장 입구">
+          </div>
+          <div class="field">
+            <label for="addPlaceDetail">정확한 위치 (예약 확정된 소비자에게만 보여요)</label>
+            <input id="addPlaceDetail" name="placeDetail" maxlength="120" placeholder="예: 농협 앞 하얀 트럭, 도착하면 전화 주세요">
+          </div>
+          <div class="field">
+            <label>수령 가능 시간대</label>
+            <div class="slot-group" id="addSlots"></div>
+          </div>
+          <div class="field">
+            <label for="addEnd">판매 종료일 (선택)</label>
+            <input id="addEnd" name="endDate" type="date">
           </div>
           <div class="field">
             <label for="addDesc">판매 설명</label>
             <textarea id="addDesc" name="description" maxlength="300" placeholder="상품 상태와 수령 가능 요일을 적어주세요."></textarea>
           </div>
           <div class="field">
-            <label for="addPhone">연락처 (공개에 동의한 경우만)</label>
-            <input id="addPhone" name="phone" type="tel" maxlength="20" placeholder="예: 010-0000-0000 (선택)">
+            <label for="addPhone">소비자에게 공개할 연락처 (선택)</label>
+            <input id="addPhone" name="phone" type="tel" maxlength="20" placeholder="예: 010-0000-0000">
           </div>
-          <div class="field">
-            <label><input type="checkbox" name="consent" style="width:auto"> 소비자에게 연락처 공개에 동의합니다 (선택)</label>
-          </div>
-          <button class="btn" type="submit" style="width:100%">올리기</button>
-          <p class="fine">올리면 소비자 화면에 바로 나타나요.</p>
+          <label class="check-row"><input type="checkbox" name="consent"> <span>위 연락처를 소비자에게 공개하는 데 동의해요. (선택)</span></label>
+          <p id="addError" class="policy" style="display:none;background:#fdf1ee;border-color:#ecc9bf;color:#8f3a26"></p>
+          <button class="btn" type="submit" style="width:100%" id="addSubmit">올리기</button>
+          <p class="fine">원산지는 정확하게 적어 주세요. 거짓 표시는 법으로 처벌받을 수 있어요.</p>
         </form>
       </div>
     </dialog>
 
+    <!-- 엑셀처럼 여러 개 한 번에 올리기 -->
+    <dialog id="bulkDialog" class="wide">
+      <div class="modal-head">
+        <h2>여러 개 한 번에 올리기</h2>
+        <button class="close" type="button" aria-label="닫기" onclick="UI.close('bulkDialog')">×</button>
+      </div>
+      <div class="modal-body" style="max-height:80vh">
+        <div class="bulk-tools">
+          <span class="grow notice" style="margin:0">엑셀에서 여러 줄을 복사해 <b>첫 칸에 붙여넣기</b> 하면 표가 한꺼번에 채워져요. 칸 순서는 아래 표와 같아요.</span>
+        </div>
+        <div class="bulk-tools">
+          <button class="btn alt small" type="button" onclick="downloadTemplate()">엑셀 양식 내려받기</button>
+          <label class="btn alt small" style="cursor:pointer">양식 파일 불러오기 (.csv)<input type="file" accept=".csv,.txt,text/csv" hidden onchange="loadCsv(this)"></label>
+          <button class="btn alt small" type="button" onclick="addRows(5)">+ 5줄 추가</button>
+          <button class="btn ghost small" type="button" onclick="clearBulk()">모두 지우기</button>
+        </div>
+        <div class="bulk-wrap">
+          <table class="bulk" id="bulkTable">
+            <thead>
+              <tr>
+                <th>#</th><th>농산물 이름*</th><th>분류*</th><th>가격(원)*</th><th>판매 단위*</th><th>수량*</th><th>원산지*</th><th>수령 장소*</th><th>정확한 위치</th><th>판매 종료일</th><th>설명</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="bulkBody"></tbody>
+          </table>
+        </div>
+        <p id="bulkSummary" class="fine"></p>
+        <div class="foot-actions">
+          <span class="mini" id="bulkCount"></span>
+          <button class="btn" type="button" onclick="submitBulk()">모두 올리기</button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- 예약 확정 / 불가 안내 -->
     <dialog id="decideDialog">
       <div class="modal-head">
         <h2 id="decideTitle">예약 확정</h2>
@@ -199,7 +303,24 @@
             <textarea id="decideNote" name="note" maxlength="300"></textarea>
           </div>
           <button class="btn" type="submit" style="width:100%" id="decideBtn">확정하기</button>
-          <p class="fine">이 메시지는 소비자의 ‘내 예약’에 표시돼요.</p>
+          <p class="fine">이 메시지는 소비자의 ‘내 예약’에 표시돼요. 확정하면 정확한 위치도 소비자에게 열려요.</p>
+        </form>
+      </div>
+    </dialog>
+
+    <!-- 사업자 판매자로 전환 -->
+    <dialog id="bizDialog">
+      <div class="modal-head">
+        <h2>사업자 판매자로 전환</h2>
+        <button class="close" type="button" aria-label="닫기" onclick="UI.close('bizDialog')">×</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="saveBiz(event)" novalidate>
+          <div class="field"><label for="bzName">상호</label><input id="bzName" name="bizName" maxlength="40"></div>
+          <div class="field"><label for="bzNumber">사업자등록번호</label><input id="bzNumber" name="bizNumber" maxlength="12" placeholder="123-45-67890"></div>
+          <div class="field"><label for="bzOrder">통신판매업 신고번호 (있다면)</label><input id="bzOrder" name="mailOrderNumber" maxlength="40"></div>
+          <p id="bizError" class="policy" style="display:none;background:#fdf1ee;border-color:#ecc9bf;color:#8f3a26"></p>
+          <button class="btn" type="submit" style="width:100%">저장하기</button>
         </form>
       </div>
     </dialog>
@@ -213,7 +334,25 @@
       const esc = UI.esc, money = UI.money;
       let me = Store.currentSeller();
       let filter = 'requested';
-      let fresh = new Set(); // 방금 들어온 예약 강조용
+      const fresh = new Set();
+      const CATEGORIES = ['못난이 농산물', '소량 잉여 농산물', '일반 농산물'];
+      const BULK_COLS = ['name', 'category', 'price', 'unit', 'stock', 'origin', 'place', 'placeDetail', 'endDate', 'description'];
+      const BULK_HEAD = ['농산물 이름', '분류', '가격(원)', '판매 단위', '수량', '원산지', '수령 장소', '정확한 위치', '판매 종료일', '설명'];
+
+      document.getElementById('originNotice').innerHTML = `
+        <h4>농수산물 원산지 표시제도 안내</h4>
+        <ul>
+          <li><b>표시 대상</b>: 판매하는 농산물과 그 가공품. 다시봄에 올리는 모든 농산물에 원산지를 적어야 해요.</li>
+          <li><b>표시 방법</b>: 국내산은 ‘국내산’ 또는 시·도, 시·군 이름으로 적어요. (예: 국내산(강원 홍천)) 수입산은 나라 이름을 적어요.</li>
+          <li><b>금지 사항</b>: 원산지를 거짓으로 적거나, 헷갈리게 적거나, 다른 원산지 상품을 섞어 파는 것.</li>
+          <li><b>위반 시</b>: 거짓 표시는 형사처벌, 표시하지 않으면 과태료 대상이 될 수 있어요.</li>
+        </ul>
+        <p class="fine" style="margin:6px 0 0">다시봄은 통신판매중개자로서 원산지 표시제도를 판매자에게 안내할 의무가 있어요. 자세한 기준은 농림축산식품부·국립농산물품질관리원 안내를 따라 주세요.</p>`;
+
+      function toggleBiz() {
+        const biz = document.querySelector('#joinForm [name=type]:checked').value === 'business';
+        document.getElementById('bizFields').hidden = !biz;
+      }
 
       function renderAll() {
         renderSellerPickers();
@@ -226,12 +365,13 @@
         renderStats();
         renderOrders();
         renderProducts();
+        renderMe();
         renderAdmin();
       }
 
       function renderSellerPickers() {
-        const sellers = Store.sellers();
-        const options = sellers.map(s => `<option value="${esc(s.name)}"${s.name === me ? ' selected' : ''}>${esc(s.name)} · ${esc(s.region)}</option>`).join('');
+        const options = Store.sellers().map(s =>
+          `<option value="${esc(s.name)}"${s.name === me ? ' selected' : ''}>${esc(s.name)} · ${esc(s.region)} · ${s.type === 'business' ? '사업자' : '개인'}</option>`).join('');
         document.getElementById('sellerSelect').innerHTML = options;
         document.getElementById('pickSeller').innerHTML = options;
       }
@@ -245,11 +385,26 @@
         window.scrollTo(0, 0);
       }
 
+      function showError(id, msg) {
+        const el = document.getElementById(id);
+        el.textContent = msg;
+        el.style.display = msg ? 'block' : 'none';
+      }
+
       function registerSeller(e) {
         e.preventDefault();
-        const s = Store.addSeller(Object.fromEntries(new FormData(e.target)));
-        if (!s) return UI.notify('저장하지 못했어요. 다시 시도해 주세요.');
-        e.target.reset();
+        const f = e.target;
+        const d = Object.fromEntries(new FormData(f));
+        d.originNotice = f.originNotice.checked;
+        d.agreeTerms = f.agreeTerms.checked;
+        const errors = Store.validateSeller(d);
+        if (Store.seller(String(d.name || '').trim())) errors.unshift('이미 있는 판매자 이름이에요. 다른 이름을 써 주세요');
+        if (errors.length) return showError('joinError', '확인해 주세요: ' + errors.join(', '));
+        const s = Store.addSeller(d);
+        if (!s) return showError('joinError', '저장하지 못했어요. 다시 시도해 주세요.');
+        showError('joinError', '');
+        f.reset();
+        toggleBiz();
         switchSeller(s.name);
         UI.notify(`${s.name}님, 다시봄에 오신 걸 환영해요! 첫 농산물을 올려 보세요.`);
       }
@@ -264,8 +419,10 @@
         document.getElementById('statWait').textContent = wait;
         document.getElementById('waitCount').textContent = wait ? wait : '';
         document.getElementById('statOk').textContent = orders.filter(r => r.status === 'accepted').length;
-        document.getElementById('statOn').textContent = Store.productsBySeller(me).filter(p => p.status !== 'off').length;
+        const mine = Store.productsBySeller(me).filter(p => p.status !== 'off');
+        document.getElementById('statOn').textContent = `${mine.filter(p => !Store.isSoldOut(p)).length} · ${mine.filter(p => Store.isSoldOut(p)).length}`;
         document.getElementById('statSales').textContent = money(orders.filter(r => r.status === 'accepted' || r.status === 'done').reduce((a, r) => a + Number(r.total || 0), 0));
+        document.getElementById('expireNote').textContent = `확인 대기 예약은 ${Store.POLICY.requestExpireHours}시간 안에 확정하거나 불가를 알려 주세요. 시간이 지나면 자동으로 만료되고 수량이 돌아와요.`;
       }
 
       function setFilter(f) {
@@ -274,10 +431,18 @@
         renderOrders();
       }
 
+      function customerFlag(r) {
+        const c = Store.customer(r.phone);
+        if (!c) return '';
+        if (c.blocked) return ' <span class="badge no">예약 제한 번호</span>';
+        if (c.noShows > 0) return ` <span class="badge wait">노쇼 ${c.noShows}회</span>`;
+        return '';
+      }
+
       function renderOrders() {
         const list = myOrders().filter(r =>
           filter === 'all' ? true :
-          filter === 'closed' ? ['done', 'declined', 'cancelled'].includes(r.status) :
+          filter === 'closed' ? ['done', 'declined', 'cancelled', 'expired', 'noshow'].includes(r.status) :
           r.status === filter
         );
         const emptyText = {
@@ -292,8 +457,9 @@
             <div>
               <h3>${esc(r.product)} · ${esc(r.quantity)}묶음 <span class="mini">(${esc(r.unit)} 단위)</span></h3>
               <div class="meta">
-                신청자 <b>${esc(r.customer)}</b> · 현장 결제 <b>${money(r.total)}</b><br>
-                수령 희망일 <b>${esc(UI.date(r.date))}</b> · ${esc(r.place)}
+                신청자 <b>${esc(r.customer)}</b> · <a href="tel:${esc(Store.normPhone(r.phone))}">${esc(r.phone)}</a>${customerFlag(r)}<br>
+                수령 <b>${esc(UI.date(r.date))} ${esc(UI.slotLabel(r.slot))}</b> · 현장 결제 <b>${money(r.total)}</b>
+                ${r.status === 'requested' ? `<br><span class="mini">${esc(UI.until(Store.expiresAt(r)))} 안에 확인하지 않으면 자동 만료</span>` : ''}
               </div>
               ${r.message ? `<p class="r-msg"><b>소비자</b> ${esc(r.message)}</p>` : ''}
               ${r.sellerNote ? `<p class="r-msg seller"><b>보낸 말</b> ${esc(r.sellerNote)}</p>` : ''}
@@ -305,26 +471,33 @@
 
       function actionsFor(r) {
         const id = esc(r.id);
+        const s = Store.seller(me);
+        const blocked = s && (s.blocked || []).includes(Store.normPhone(r.phone));
+        const blockBtn = blocked
+          ? `<button class="btn ghost small" type="button" onclick="unblockFromCard('${id}')">차단 해제</button>`
+          : `<button class="btn danger small" type="button" onclick="blockFromCard('${id}')">이 소비자 차단</button>`;
         if (r.status === 'requested') return `<div class="r-actions">
           <button class="btn" type="button" onclick="openDecide('${id}','accepted')">예약 확정</button>
           <button class="btn danger" type="button" onclick="openDecide('${id}','declined')">예약 불가</button></div>`;
         if (r.status === 'accepted') return `<div class="r-actions">
           <button class="btn" type="button" onclick="markDone('${id}')">수령 완료</button>
+          <button class="btn alt" type="button" onclick="markNoShow('${id}')">노쇼 (안 왔어요)</button>
           <button class="btn danger" type="button" onclick="openDecide('${id}','declined')">예약 취소</button></div>`;
+        if (r.status === 'noshow') return `<div class="r-actions">${blockBtn}</div>`;
         return '';
       }
 
       function openDecide(id, status) {
-        const r = Store.reservations().find(x => x.id === id);
+        const r = Store.reservation(id);
         if (!r) return;
         const ok = status === 'accepted';
         document.getElementById('decideId').value = id;
         document.getElementById('decideStatus').value = status;
         document.getElementById('decideTitle').textContent = ok ? '예약 확정' : '예약 불가 안내';
         document.getElementById('decideBtn').textContent = ok ? '확정하기' : '불가 안내 보내기';
-        document.getElementById('decideInfo').textContent = `${r.customer}님 · ${r.product} ${r.quantity}묶음\n수령 희망일 ${UI.date(r.date)} · ${r.place}`;
+        document.getElementById('decideInfo').textContent = `${r.customer}님 · ${r.product} ${r.quantity}묶음\n수령 ${UI.date(r.date)} ${UI.slotLabel(r.slot)} · ${r.place}`;
         document.getElementById('decideNote').value = ok
-          ? `예약 확정됐어요. ${UI.date(r.date)}에 ${r.place.split('·')[0].trim()}에서 뵐게요!`
+          ? `예약 확정됐어요. ${UI.date(r.date)} ${UI.slotLabel(r.slot)} 사이에 뵐게요!`
           : '죄송해요, 이번에는 준비가 어려워요. 다음에 꼭 다시 찾아 주세요.';
         UI.show('decideDialog');
       }
@@ -332,35 +505,88 @@
       function decide(e) {
         e.preventDefault();
         const x = Object.fromEntries(new FormData(e.target));
-        Store.updateReservation(x.id, { status: x.status, sellerNote: x.note });
+        if (x.status === 'accepted') Store.updateReservation(x.id, { status: 'accepted', sellerNote: x.note });
+        else Store.setReservationStatus(x.id, 'declined', { sellerNote: x.note });
         UI.close('decideDialog');
         fresh.delete(x.id);
         renderAll();
-        UI.notify(x.status === 'accepted' ? '예약을 확정했어요. 소비자에게 바로 표시돼요.' : '예약 불가를 안내했어요.');
+        UI.notify(x.status === 'accepted' ? '예약을 확정했어요. 소비자에게 정확한 위치가 열렸어요.' : '예약 불가를 안내했어요. 수량이 다시 돌아왔어요.');
       }
 
       function markDone(id) {
-        Store.updateReservation(id, { status: 'done' });
+        Store.setReservationStatus(id, 'done');
         renderAll();
         UI.notify('수령 완료로 바꿨어요.');
       }
 
+      function markNoShow(id) {
+        const r = Store.reservation(id);
+        if (!r) return;
+        if (!window.confirm(`${r.customer}님이 연락 없이 오지 않았나요?\n노쇼로 기록되고, ${Store.POLICY.noShowLimit}회가 되면 다시봄 예약이 자동으로 제한돼요.`)) return;
+        Store.setReservationStatus(id, 'noshow', { sellerNote: '연락 없이 수령하지 않아 노쇼로 기록됐어요.' });
+        const c = Store.customer(r.phone);
+        renderAll();
+        UI.notify(c && c.blocked ? `노쇼 ${c.noShows}회로 이 번호는 다시봄 예약이 제한됐어요.` : `노쇼로 기록했어요. (누적 ${c ? c.noShows : 1}회) 수량은 다시 돌아왔어요.`);
+      }
+
+      function blockFromCard(id) {
+        const r = Store.reservation(id);
+        if (!r || !window.confirm(`${r.customer}님(${r.phone})을 차단할까요? 내 상품을 더 이상 예약할 수 없어요.`)) return;
+        Store.sellerBlock(me, r.phone);
+        renderAll();
+        UI.notify('차단했어요. 내 정보 탭에서 해제할 수 있어요.');
+      }
+
+      function unblockFromCard(id) {
+        const r = Store.reservation(id);
+        if (!r) return;
+        Store.sellerUnblock(me, r.phone);
+        renderAll();
+        UI.notify('차단을 해제했어요.');
+      }
+
+      /* ---------- 내 상품 ---------- */
+      function stockText(p) {
+        const n = Number(p.stock);
+        if (n <= 0) return '<span class="stock out">품절</span>';
+        if (n <= 3) return `<span class="stock low">${n}묶음 남음</span>`;
+        return `<span class="stock">${n}묶음 남음</span>`;
+      }
+
       function renderProducts() {
         const list = Store.productsBySeller(me);
-        document.getElementById('productList').innerHTML = list.length ? list.map(p => `
-          <article class="p-row${p.status === 'off' ? ' is-off' : ''}">
+        const t = UI.today();
+        document.getElementById('productList').innerHTML = list.length ? list.map(p => {
+          const ended = p.endDate && p.endDate < t;
+          return `
+          <article class="p-row${p.status === 'off' || ended ? ' is-off' : ''}">
             <div class="r-emoji" aria-hidden="true" style="width:52px;height:52px;border-radius:12px;background:#efe8d4;display:grid;place-items:center;font-size:30px">${p.emoji || '🥬'}</div>
             <div>
-              <h3>${esc(p.name)} ${p.status === 'off' ? '<span class="badge off">판매 중지</span>' : '<span class="badge ok">판매 중</span>'}</h3>
-              <div class="meta">${money(p.price)} / ${esc(p.unit)} · ${esc(p.category)} · ${esc(p.place)}</div>
+              <h3>${esc(p.name)} ${p.status === 'off' ? '<span class="badge off">판매 중지</span>' : ended ? '<span class="badge off">판매 종료</span>' : '<span class="badge ok">판매 중</span>'} ${stockText(p)}</h3>
+              <div class="meta">${money(p.price)} / ${esc(p.unit)} · ${esc(p.category)} · 원산지 ${esc(p.origin || '-')}<br>${esc(p.place)}${p.endDate ? ` · ${esc(UI.date(p.endDate))}까지` : ''}</div>
             </div>
             <div class="p-actions">
+              <button class="btn alt small" type="button" onclick="changeStock('${esc(p.id)}')">수량 변경</button>
+              <button class="btn alt small" type="button" onclick="relist('${esc(p.id)}')">다시 올리기</button>
               ${p.status === 'off'
                 ? `<button class="btn small" type="button" onclick="toggleProduct('${esc(p.id)}','on')">다시 판매</button>`
-                : `<button class="btn alt small" type="button" onclick="toggleProduct('${esc(p.id)}','off')">판매 중지</button>`}
+                : `<button class="btn ghost small" type="button" onclick="toggleProduct('${esc(p.id)}','off')">판매 중지</button>`}
               ${p.isDemo ? '' : `<button class="btn danger small" type="button" onclick="removeProduct('${esc(p.id)}')">삭제</button>`}
             </div>
-          </article>`).join('') : '<div class="empty">아직 올린 농산물이 없어요.<br><button class="btn" type="button" style="margin-top:12px" onclick="openAdd()">첫 농산물 올리기</button></div>';
+          </article>`;
+        }).join('') : '<div class="empty">아직 올린 농산물이 없어요.<br><button class="btn" type="button" style="margin-top:12px" onclick="openAdd()">첫 농산물 올리기</button></div>';
+      }
+
+      function changeStock(id) {
+        const p = Store.product(id);
+        if (!p) return;
+        const v = window.prompt(`${p.name}: 지금 남은 수량을 묶음 수로 적어 주세요.`, String(p.stock));
+        if (v === null) return;
+        const n = Number(v);
+        if (!Number.isInteger(n) || n < 0 || n > 9999) return UI.notify('수량은 0~9999 사이 정수로 적어 주세요.');
+        Store.updateProduct(id, { stock: n });
+        renderAll();
+        UI.notify(n === 0 ? '품절로 바꿨어요.' : `남은 수량을 ${n}묶음으로 바꿨어요.`);
       }
 
       function toggleProduct(id, status) {
@@ -376,43 +602,338 @@
         UI.notify('상품을 삭제했어요.');
       }
 
-      function openAdd() {
+      function renderSlotChoices(selected) {
+        document.getElementById('addSlots').innerHTML = Store.SLOTS.map(s =>
+          `<label><input type="checkbox" name="slots" value="${esc(s)}"${selected.includes(s) ? ' checked' : ''}> ${esc(UI.slotLabel(s))}</label>`).join('');
+      }
+
+      function suggestOrigin() {
+        const o = document.getElementById('addOrigin');
+        if (!o.value || /^국내산\(강원 [^)]*\)$/.test(o.value)) o.value = `국내산(강원 ${document.getElementById('addRegion').value})`;
+      }
+
+      function openAdd(prefill) {
         if (!me) return;
-        const seller = Store.sellers().find(s => s.name === me);
-        document.getElementById('addWho').textContent = `${me} 이름으로 올라가요. 올리면 소비자 화면에 바로 나타나요.`;
-        if (seller && seller.region) document.getElementById('addRegion').value = seller.region;
+        const f = document.getElementById('addForm');
+        f.reset();
+        showError('addError', '');
+        const seller = Store.seller(me);
+        document.getElementById('addTitle').textContent = prefill ? '다시 올리기' : '농산물 올리기';
+        document.getElementById('addSubmit').textContent = prefill ? '새로 올리기' : '올리기';
+        document.getElementById('addWho').textContent = prefill
+          ? `지난번 ${prefill.name} 정보를 그대로 채웠어요. 수량과 날짜만 확인하고 올리세요.`
+          : `${me} 이름으로 올라가요. 올리면 소비자 화면에 바로 나타나요.`;
+        document.getElementById('addRegion').value = (prefill && prefill.region) || (seller && seller.region) || '춘천';
+        document.getElementById('addEnd').min = UI.today();
+        renderSlotChoices((prefill && prefill.slots) || Store.SLOTS.slice(0, 3));
+        if (prefill) {
+          ['name', 'category', 'price', 'unit', 'origin', 'place', 'placeDetail', 'description', 'mode'].forEach(k => {
+            if (f.elements[k] && prefill[k] !== undefined) f.elements[k].value = prefill[k];
+          });
+          f.elements.stock.value = '';
+          if (prefill.phone) {
+            f.elements.phone.value = prefill.phone;
+            f.elements.consent.checked = true;
+          }
+        } else {
+          suggestOrigin();
+        }
         UI.show('addDialog');
+        (prefill ? f.elements.stock : f.elements.name).focus();
+      }
+
+      function relist(id) {
+        const p = Store.product(id);
+        if (p) openAdd(p);
       }
 
       function addProduct(e) {
         e.preventDefault();
-        const x = Object.fromEntries(new FormData(e.target));
-        x.price = Number(x.price);
-        if (!Number.isFinite(x.price) || x.price < 0) return UI.notify('가격을 확인해 주세요.');
-        x.phone = x.consent && /^0\d{1,2}-?\d{3,4}-?\d{4}$/.test(x.phone || '') ? x.phone : '';
+        const f = e.target;
+        const x = Object.fromEntries(new FormData(f));
+        x.slots = [...f.querySelectorAll('[name=slots]:checked')].map(i => i.value);
+        const errors = Store.validateProduct(x);
+        if (!x.slots.length) errors.push('수령 가능 시간대(1개 이상)');
+        if (x.endDate && x.endDate < UI.today()) errors.push('판매 종료일(오늘 이후)');
+        if (errors.length) return showError('addError', '확인해 주세요: ' + errors.join(', '));
+        x.phone = f.consent.checked && Store.Check.phone(x.phone) ? x.phone : '';
         delete x.consent;
         x.seller = me;
         const p = Store.addProduct(x);
-        if (!p) return UI.notify('저장하지 못했어요. 다시 시도해 주세요.');
+        if (!p) return showError('addError', '저장하지 못했어요. 다시 시도해 주세요.');
         UI.close('addDialog');
-        e.target.reset();
         showTab('products');
         renderAll();
-        UI.notify(`${p.name}을(를) 올렸어요. 소비자 화면에 바로 보여요.`);
+        UI.notify(`${p.name}을(를) ${p.stock}묶음 올렸어요. 소비자 화면에 바로 보여요.`);
       }
 
+      /* ---------- 여러 개 한 번에 올리기 ---------- */
+      function bulkRowHtml(d = {}, i = 0) {
+        const cell = (k, attrs = '') => `<td><input data-k="${k}" value="${esc(d[k] || '')}" ${attrs}></td>`;
+        return `<tr>
+          <td class="num">${i + 1}</td>
+          ${cell('name', 'placeholder="예: 못난이 감자" style="min-width:120px"')}
+          <td><select data-k="category" style="min-width:128px">${CATEGORIES.map(c => `<option${normCategory(d.category) === c ? ' selected' : ''}>${c}</option>`).join('')}</select></td>
+          ${cell('price', 'inputmode="numeric" placeholder="3000" style="min-width:70px"')}
+          ${cell('unit', 'placeholder="1kg" style="min-width:64px"')}
+          ${cell('stock', 'inputmode="numeric" placeholder="10" style="min-width:52px"')}
+          ${cell('origin', 'placeholder="국내산(강원 춘천)" style="min-width:120px"')}
+          ${cell('place', 'placeholder="홍천 오일장 입구" style="min-width:120px"')}
+          ${cell('placeDetail', 'placeholder="확정 후 공개" style="min-width:110px"')}
+          ${cell('endDate', 'placeholder="2026-12-31" style="min-width:94px"')}
+          ${cell('description', 'style="min-width:140px"')}
+          <td><button class="del" type="button" aria-label="이 줄 지우기" onclick="this.closest('tr').remove();renumber()">×</button></td>
+        </tr>`;
+      }
+
+      function normCategory(c) {
+        const s = String(c || '').trim();
+        if (s.includes('못난')) return '못난이 농산물';
+        if (s.includes('소량') || s.includes('잉여')) return '소량 잉여 농산물';
+        if (s.includes('일반')) return '일반 농산물';
+        return s || '못난이 농산물';
+      }
+
+      function renumber() {
+        document.querySelectorAll('#bulkBody tr:not(.err-row)').forEach((tr, i) => (tr.querySelector('.num').textContent = i + 1));
+        countBulk();
+      }
+
+      function addRows(n, data = []) {
+        const body = document.getElementById('bulkBody');
+        const start = body.querySelectorAll('tr:not(.err-row)').length;
+        const html = Array.from({ length: n }, (_, i) => bulkRowHtml(data[i] || {}, start + i)).join('');
+        body.insertAdjacentHTML('beforeend', html);
+        countBulk();
+      }
+
+      function clearBulk() {
+        document.getElementById('bulkBody').innerHTML = '';
+        document.getElementById('bulkSummary').textContent = '';
+        addRows(5);
+      }
+
+      function openBulk() {
+        if (!me) return;
+        if (!document.getElementById('bulkBody').children.length) addRows(5);
+        UI.show('bulkDialog');
+      }
+
+      function rowData(tr) {
+        const d = {};
+        tr.querySelectorAll('[data-k]').forEach(el => (d[el.dataset.k] = el.value.trim()));
+        return d;
+      }
+
+      function isEmptyRow(d) {
+        return ['name', 'price', 'unit', 'stock', 'origin', 'place', 'placeDetail', 'endDate', 'description'].every(k => !d[k]);
+      }
+
+      function countBulk() {
+        const filled = [...document.querySelectorAll('#bulkBody tr:not(.err-row)')].filter(tr => !isEmptyRow(rowData(tr))).length;
+        document.getElementById('bulkCount').textContent = `${filled}개 입력됨`;
+      }
+
+      // 엑셀·구글 시트에서 복사한 내용(탭으로 구분)을 붙여넣으면 여러 칸을 한 번에 채워요
+      document.getElementById('bulkBody').addEventListener('paste', e => {
+        const text = (e.clipboardData || window.clipboardData).getData('text');
+        if (!text || (!text.includes('\t') && !text.includes('\n'))) return;
+        e.preventDefault();
+        const rows = text.replace(/\r/g, '').split('\n').filter(l => l.trim() !== '').map(l => l.split('\t'));
+        const startTr = e.target.closest('tr');
+        const startCol = Math.max(0, BULK_COLS.indexOf(e.target.dataset.k));
+        let trs = [...document.querySelectorAll('#bulkBody tr:not(.err-row)')];
+        let rowIndex = trs.indexOf(startTr);
+        // 머리글 줄을 같이 복사했다면 건너뛰기
+        if (rows.length && rows[0][0] && rows[0][0].includes('농산물 이름')) rows.shift();
+        const need = rowIndex + rows.length - trs.length;
+        if (need > 0) addRows(need);
+        trs = [...document.querySelectorAll('#bulkBody tr:not(.err-row)')];
+        rows.forEach((cells, r) => {
+          const tr = trs[rowIndex + r];
+          cells.forEach((v, c) => {
+            const k = BULK_COLS[startCol + c];
+            if (!k) return;
+            const el = tr.querySelector(`[data-k="${k}"]`);
+            if (el) el.value = k === 'category' ? normCategory(v) : v.trim();
+          });
+        });
+        countBulk();
+        UI.notify(`${rows.length}줄을 붙여넣었어요. 확인하고 ‘모두 올리기’를 누르세요.`);
+      });
+      document.getElementById('bulkBody').addEventListener('input', countBulk);
+
+      function csvParse(text) {
+        const rows = [];
+        let row = [], cell = '', q = false;
+        for (let i = 0; i < text.length; i++) {
+          const ch = text[i];
+          if (q) {
+            if (ch === '"' && text[i + 1] === '"') { cell += '"'; i++; }
+            else if (ch === '"') q = false;
+            else cell += ch;
+          } else if (ch === '"') q = true;
+          else if (ch === ',') { row.push(cell); cell = ''; }
+          else if (ch === '\n') { row.push(cell); rows.push(row); row = []; cell = ''; }
+          else if (ch !== '\r') cell += ch;
+        }
+        if (cell !== '' || row.length) { row.push(cell); rows.push(row); }
+        return rows.filter(r => r.some(c => c.trim() !== ''));
+      }
+
+      function loadCsv(input) {
+        const file = input.files && input.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          let text = String(reader.result).replace(/^﻿/, '');
+          // 엑셀이 한글을 EUC-KR로 저장한 경우 대비
+          if (text.includes('�')) {
+            const r2 = new FileReader();
+            r2.onload = () => fillFromRows(csvParse(String(r2.result)));
+            r2.readAsText(file, 'euc-kr');
+            return;
+          }
+          fillFromRows(csvParse(text));
+        };
+        reader.readAsText(file, 'utf-8');
+        input.value = '';
+      }
+
+      function fillFromRows(rows) {
+        if (rows.length && rows[0][0] && rows[0][0].includes('농산물 이름')) rows.shift();
+        const data = rows.filter(r => !String(r[0] || '').startsWith('#')).map(r => Object.fromEntries(BULK_COLS.map((k, i) => [k, (r[i] || '').trim()])));
+        document.getElementById('bulkBody').innerHTML = '';
+        addRows(Math.max(data.length, 1), data);
+        UI.notify(`파일에서 ${data.length}줄을 불러왔어요.`);
+      }
+
+      function downloadTemplate() {
+        const seller = Store.seller(me);
+        const region = (seller && seller.region) || '춘천';
+        const rows = [
+          BULK_HEAD,
+          ['못난이 감자', '못난이 농산물', '3000', '1kg', '10', `국내산(강원 ${region})`, `${region} 오일장 입구`, '농협 앞 하얀 트럭', '', '모양은 고르지 않지만 맛있어요'],
+          ['소량 대파', '소량 잉여 농산물', '1500', '2줄기', '15', `국내산(강원 ${region})`, `${region} 풍물시장`, '', '2026-12-31', '']
+        ];
+        const csv = rows.map(r => r.map(c => /[",\n]/.test(c) ? `"${c.replace(/"/g, '""')}"` : c).join(',')).join('\r\n');
+        UI.downloadText('﻿' + csv, '다시봄-상품-일괄등록-양식.csv', 'text/csv;charset=utf-8');
+        UI.notify('양식을 받았어요. 엑셀로 열어 채운 뒤 ‘양식 파일 불러오기’로 올리거나, 표를 복사해 붙여넣으세요.');
+      }
+
+      function submitBulk() {
+        const trs = [...document.querySelectorAll('#bulkBody tr:not(.err-row)')];
+        const seller = Store.seller(me);
+        const ok = [];
+        let bad = 0;
+        trs.forEach(tr => {
+          tr.classList.remove('bad');
+          const next = tr.nextElementSibling;
+          if (next && next.classList.contains('err-row')) next.remove();
+        });
+        trs.forEach(tr => {
+          const d = rowData(tr);
+          if (isEmptyRow(d)) return;
+          const errors = Store.validateProduct(d);
+          if (d.endDate && d.endDate < UI.today()) errors.push('판매 종료일(오늘 이후)');
+          if (errors.length) {
+            bad++;
+            tr.classList.add('bad');
+            tr.insertAdjacentHTML('afterend', `<tr class="err-row bad"><td></td><td colspan="11" class="err">이 줄을 확인해 주세요: ${esc(errors.join(', '))}</td></tr>`);
+          } else {
+            ok.push({ ...d, seller: me, region: (seller && seller.region) || '춘천' });
+          }
+        });
+        if (!ok.length && !bad) return UI.notify('올릴 내용이 없어요. 표를 채워 주세요.');
+        if (bad) {
+          document.getElementById('bulkSummary').textContent = `${bad}줄에 고칠 곳이 있어요. 빨갛게 표시된 줄을 확인하면 모두 한꺼번에 올라가요.`;
+          return;
+        }
+        const created = Store.addProducts(ok);
+        if (!created) return UI.notify('저장하지 못했어요. 다시 시도해 주세요.');
+        clearBulk();
+        UI.close('bulkDialog');
+        showTab('products');
+        renderAll();
+        UI.notify(`${created.length}개 농산물을 한 번에 올렸어요.`);
+      }
+
+      /* ---------- 내 정보 ---------- */
+      function renderMe() {
+        const s = Store.seller(me);
+        if (!s) return;
+        const rows = [
+          ['판매자 유형', UI.sellerBadge(s)],
+          ['활동 지역', esc(s.region)],
+          ['연락처', esc(s.phone || '미등록')],
+          ['전자우편', esc(s.email || '-')]
+        ];
+        if (s.type === 'business') {
+          rows.push(['상호', esc(s.bizName)], ['사업자등록번호', esc(s.bizNumber)], ['통신판매업 신고번호', esc(s.mailOrderNumber || '-')]);
+        }
+        rows.push(['원산지 안내 확인', s.originNoticeAt ? esc(new Date(s.originNoticeAt).toLocaleString('ko-KR')) : '미확인']);
+        document.getElementById('meInfo').innerHTML = rows.map(([k, v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+        document.getElementById('meBizAction').innerHTML = s.type === 'business'
+          ? '<p class="fine">사업자 정보는 소비자의 예약 화면에 판매자 정보로 표시돼요.</p>'
+          : `<div class="notice">사업자등록을 하셨나요? 사업자 판매자로 바꾸면 ‘사업자 판매자’ 배지가 붙어요. <button class="btn small" type="button" style="margin-left:8px" onclick="UI.show('bizDialog')">사업자 판매자로 전환</button></div>`;
+        const blocks = s.blocked || [];
+        document.getElementById('myBlocks').innerHTML = blocks.length ? blocks.map(ph => {
+          const c = Store.customers()[ph];
+          return `<li><span>${esc(c ? c.name : '')} ${esc(c ? c.phone : ph)}</span><button class="btn ghost small" type="button" onclick="Store.sellerUnblock(me,'${esc(ph)}');renderAll();UI.notify('차단을 해제했어요.')">해제</button></li>`;
+        }).join('') : '<li>차단한 소비자가 없어요.</li>';
+      }
+
+      function saveBiz(e) {
+        e.preventDefault();
+        const d = Object.fromEntries(new FormData(e.target));
+        const errors = [];
+        if (!d.bizName.trim()) errors.push('상호');
+        if (!Store.Check.bizNumber(d.bizNumber)) errors.push('사업자등록번호(예: 123-45-67890)');
+        if (errors.length) return showError('bizError', '확인해 주세요: ' + errors.join(', '));
+        Store.updateSeller(me, { type: 'business', bizName: d.bizName.trim(), bizNumber: d.bizNumber.trim(), mailOrderNumber: d.mailOrderNumber.trim() });
+        showError('bizError', '');
+        UI.close('bizDialog');
+        renderAll();
+        UI.notify('사업자 판매자로 바꿨어요.');
+      }
+
+      /* ---------- 운영 도구 ---------- */
       function renderAdmin() {
-        const sellers = Store.sellers();
-        document.getElementById('sellerList').innerHTML = '<ul class="dash-list">' + sellers.map(s => `
-          <li>${esc(s.name)} · ${esc(s.region)} · ${esc(s.mode)}${s.products ? ` (${esc(s.products)})` : ''} · 상품 ${Store.productsBySeller(s.name).length}개</li>`).join('') + '</ul>';
+        document.getElementById('policyNote').textContent =
+          `규칙: 노쇼 ${Store.POLICY.noShowLimit}회가 되면 다시봄 전체에서 자동으로 예약이 제한돼요. 운영자가 직접 차단하거나 해제할 수 있어요.`;
+        const cs = Object.entries(Store.customers()).sort((a, b) => (b[1].noShows || 0) - (a[1].noShows || 0));
+        document.getElementById('customerList').innerHTML = cs.length ? cs.map(([key, c]) => `
+          <li><span>${esc(c.name || '(이름 없음)')} · ${esc(c.phone)} · 노쇼 ${Number(c.noShows || 0)}회 ${c.blocked ? `<span class="badge no">예약 제한</span> <span class="mini">${esc(c.blockedReason || '')}</span>` : ''}</span>
+          ${c.blocked
+            ? `<button class="btn ghost small" type="button" onclick="adminUnblock('${esc(key)}')">제한 해제</button>`
+            : `<button class="btn danger small" type="button" onclick="adminBlock('${esc(key)}')">예약 제한</button>`}</li>`).join('')
+          : '<li>아직 예약한 소비자가 없어요.</li>';
+        document.getElementById('sellerList').innerHTML = '<ul class="dash-list">' + Store.sellers().map(s => `
+          <li>${esc(s.name)} ${UI.sellerBadge(s)} · ${esc(s.region)} · ${esc(s.phone || '')}${s.type === 'business' ? ` · ${esc(s.bizNumber)}` : ''} · 상품 ${Store.productsBySeller(s.name).length}개 · 원산지 안내 ${s.originNoticeAt ? '확인' : '미확인'}</li>`).join('') + '</ul>';
         const all = Store.reservations();
         document.getElementById('allOrders').innerHTML = all.length ? '<ul class="dash-list">' + all.map(r => `
-          <li>${esc(r.product)} · ${esc(r.seller)} ← ${esc(r.customer)} · ${esc(r.quantity)}묶음 · ${money(r.total)} · ${esc(UI.date(r.date))} · ${UI.badge(r.status)}</li>`).join('') + '</ul>'
+          <li>${esc(r.product)} · ${esc(r.seller)} ← ${esc(r.customer)} · ${esc(r.quantity)}묶음 · ${money(r.total)} · ${esc(UI.date(r.date))} ${esc(UI.slotLabel(r.slot))} · ${UI.badge(r.status)}</li>`).join('') + '</ul>'
           : '<p class="fine">아직 예약이 없어요.</p>';
       }
 
+      function adminBlock(key) {
+        const c = Store.customers()[key];
+        if (!c || !window.confirm(`${c.name || ''} ${c.phone}의 다시봄 예약을 제한할까요?`)) return;
+        Store.blockCustomer(c.phone, '운영자 차단');
+        renderAll();
+        UI.notify('예약을 제한했어요.');
+      }
+
+      function adminUnblock(key) {
+        const c = Store.customers()[key];
+        if (!c) return;
+        Store.unblockCustomer(c.phone);
+        renderAll();
+        UI.notify('예약 제한을 해제하고 노쇼 기록을 초기화했어요.');
+      }
+
       function resetDemo() {
-        if (!window.confirm('상품·판매자·예약을 모두 지우고 처음 예시 상태로 되돌릴까요?')) return;
+        if (!window.confirm('상품·판매자·예약·노쇼 기록을 모두 지우고 처음 예시 상태로 되돌릴까요?')) return;
         Store.resetDemo();
         me = null;
         fresh.clear();
@@ -421,7 +942,7 @@
       }
 
       function showTab(name) {
-        ['orders', 'products', 'admin'].forEach(t => {
+        ['orders', 'products', 'me', 'admin'].forEach(t => {
           document.getElementById('tab-' + t).setAttribute('aria-selected', String(t === name));
           document.getElementById('panel-' + t).hidden = t !== name;
         });
@@ -429,19 +950,24 @@
 
       // 소비자 웹에서 바뀐 내용 반영
       Store.subscribe(prev => {
-        if (me && !Store.sellers().some(s => s.name === me)) me = null; // 다른 탭에서 초기화한 경우
+        if (me && !Store.seller(me)) me = null;
         if (me && prev) {
           const oldIds = new Set(prev.reservations.map(r => r.id));
           const oldStatus = Object.fromEntries(prev.reservations.map(r => [r.id, r.status]));
           const incoming = myOrders().filter(r => !oldIds.has(r.id));
           incoming.forEach(r => fresh.add(r.id));
-          if (incoming.length) UI.notify(`새 예약이 들어왔어요: ${incoming.map(r => `${r.customer}님 · ${r.product}`).join(', ')}`);
+          if (incoming.length) {
+            showTab('orders');
+            setFilter('requested');
+            UI.notify(`새 예약이 들어왔어요: ${incoming.map(r => `${r.customer}님 · ${r.product}`).join(', ')}`);
+          }
           const cancelled = myOrders().filter(r => r.status === 'cancelled' && oldStatus[r.id] && oldStatus[r.id] !== 'cancelled');
-          if (cancelled.length) UI.notify(`${cancelled.map(r => r.customer).join(', ')}님이 예약을 취소했어요.`);
+          if (cancelled.length) UI.notify(`${cancelled.map(r => r.customer).join(', ')}님이 예약을 취소했어요. 수량이 돌아왔어요.`);
         }
         renderAll();
       });
 
+      UI.initBigText('bigTextBtn');
       renderAll();
     </script>
   </body>

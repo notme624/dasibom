@@ -18,7 +18,7 @@
         <a class="logo" href="index.html" aria-label="다시봄 홈"><span class="brand-mark" aria-hidden="true">✿</span> 다시봄</a>
         <nav class="nav-actions" aria-label="주 메뉴">
           <a class="btn ghost" href="#market">농산물 찾기</a>
-          <a class="btn ghost" href="#how">이용 방법</a>
+          <button class="btn ghost" type="button" id="bigTextBtn" aria-pressed="false">큰 글씨</button>
           <button class="btn" type="button" onclick="openMine()">내 예약<span class="nav-count" id="mineCount"></span></button>
         </nav>
       </div>
@@ -54,7 +54,7 @@
           <div class="section-head">
             <div>
               <h2>픽업 가능한 농산물</h2>
-              <p>지역과 판매 단위, 수령 장소를 보고 골라보세요.</p>
+              <p>남은 수량과 원산지, 수령 장소를 보고 골라보세요.</p>
             </div>
             <span class="mini" id="count"></span>
           </div>
@@ -87,13 +87,13 @@
           </div>
           <div class="step-grid">
             <div class="step">
-              <b>01</b><h3>우리 동네 상품 찾기</h3><p>춘천·강원 지역의 오일장 또는 소규모 농가에서 판매하는 농산물을 찾아보세요.</p>
+              <b>01</b><h3>우리 동네 상품 찾기</h3><p>남은 수량과 원산지, 수령 장소를 보고 필요한 만큼 골라요.</p>
             </div>
             <div class="step">
-              <b>02</b><h3>예약 신청하고 확정 받기</h3><p>예약을 신청하면 판매자가 확인 후 확정해요. ‘내 예약’에서 진행 상황을 볼 수 있어요.</p>
+              <b>02</b><h3>예약하고 확정 받기</h3><p>수령 날짜와 시간대를 고르면 판매자가 확인 후 확정해요. 확정되면 정확한 수령 위치가 열려요.</p>
             </div>
             <div class="step">
-              <b>03</b><h3>만나서 수령·결제</h3><p>판매자와 약속한 오일장 또는 지정 장소에서 직접 상품을 확인하고 결제해요.</p>
+              <b>03</b><h3>출발 알림 받고 수령</h3><p>이동 시간을 고르면 출발 시각에 휴대폰 알림이 울려요. 현장에서 확인하고 결제해요.</p>
             </div>
           </div>
         </div>
@@ -104,7 +104,10 @@
       <div class="wrap">
         <strong style="font-size:23px">🌱 다시봄</strong>
         <p>못난이 농산물의 가치를 다시 보다. · 춘천·강원 시범 프로젝트 · <a href="seller.html" style="color:#efe5a7">판매자 웹</a></p>
-        <p>본 페이지는 개발용 시제품입니다. 실제 거래 중개 서비스로 운영하기 전 판매자 확인, 개인정보 보호, 운영 정책 등을 갖추어야 합니다.</p>
+        <p class="legal-line"><b>다시봄은 통신판매중개자로서 통신판매의 당사자가 아닙니다.</b> 상품 정보와 거래에 관한 의무와 책임은 각 판매자에게 있습니다.</p>
+        <p class="legal-line">상호 다시봄(등록 예정) · 대표자 (입력 예정) · 사업자등록번호 (등록 예정) · 통신판매업 신고번호 (신고 예정) · 주소 (입력 예정) · 고객센터 (입력 예정)</p>
+        <p class="legal-line"><a href="terms.html#terms" style="color:#efe5a7">이용약관</a> · <a href="terms.html#privacy" style="color:#efe5a7"><b>개인정보 처리방침</b></a> · <a href="terms.html#noshow" style="color:#efe5a7">노쇼 정책</a> · <a href="terms.html#help" style="color:#efe5a7">불만·분쟁 접수</a></p>
+        <p class="legal-line">본 페이지는 개발용 시제품입니다. 실제 운영 전 사업자등록, 통신판매업 신고, 약관·처리방침 법률 검토를 마쳐야 합니다.</p>
       </div>
     </footer>
 
@@ -115,27 +118,39 @@
       </div>
       <div class="modal-body">
         <div id="reserveProduct" class="notice" style="white-space:pre-line"></div>
-        <form onsubmit="reserve(event)">
+        <div id="reserveSeller" class="seller-box"></div>
+        <form onsubmit="reserve(event)" novalidate>
           <input type="hidden" name="productId" id="reserveId">
           <div class="field">
-            <label for="reserveCustomer">신청자 이름 또는 별명</label>
-            <input id="reserveCustomer" name="customer" required maxlength="40">
+            <label for="reserveQuantity">예약 묶음 수 <span class="mini" id="reserveStock"></span></label>
+            <input id="reserveQuantity" name="quantity" type="number" min="1" value="1" required>
           </div>
           <div class="field">
-            <label for="reserveQuantity">예약 묶음 수</label>
-            <input id="reserveQuantity" name="quantity" type="number" min="1" max="100" value="1" required>
-          </div>
-          <div class="field">
-            <label for="reserveDate">희망 수령 날짜</label>
+            <label for="reserveDate">수령 날짜</label>
             <input id="reserveDate" name="date" type="date" required>
           </div>
           <div class="field">
-            <label for="reserveMessage">판매자에게 남길 말</label>
-            <textarea id="reserveMessage" name="message" maxlength="300" placeholder="예: 오후 2시쯤 수령할 수 있을까요?"></textarea>
+            <label>수령 시간대</label>
+            <div class="slot-group" id="reserveSlots"></div>
+          </div>
+          <div class="field">
+            <label for="reserveCustomer">신청자 이름 또는 별명</label>
+            <input id="reserveCustomer" name="customer" required maxlength="40" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="reservePhone">연락처</label>
+            <input id="reservePhone" name="phone" type="tel" required maxlength="20" placeholder="010-1234-5678" autocomplete="tel">
+          </div>
+          <div class="field">
+            <label for="reserveMessage">판매자에게 남길 말 (선택)</label>
+            <textarea id="reserveMessage" name="message" maxlength="300" placeholder="예: 오후 2시쯤 도착할 것 같아요."></textarea>
           </div>
           <output id="reserveTotal" class="notice reserve-total" for="reserveQuantity"></output>
+          <div class="policy" id="reservePolicy"></div>
+          <label class="check-row"><input type="checkbox" name="privacy" required> <span><b>(필수) 개인정보 수집·이용 동의</b><br>이름·연락처를 예약 확인과 연락에만 쓰고, 수령 후 <span id="retention"></span>개월이 지나면 지워요. 판매자에게는 예약 처리에 필요한 범위에서만 전달돼요. <a href="terms.html#privacy" target="_blank" rel="noopener">자세히</a></span></label>
+          <p id="reserveError" class="policy" style="display:none;background:#fdf1ee;border-color:#ecc9bf;color:#8f3a26"></p>
           <button class="btn" style="width:100%" type="submit">예약 신청하기</button>
-          <p class="fine">신청하면 판매자 웹으로 전달되고, 판매자가 확정하면 ‘내 예약’에 표시돼요. 결제는 수령할 때 현장에서 해요.</p>
+          <p class="fine">다시봄은 예약을 전달하는 중개자예요. 결제는 수령할 때 판매자에게 직접 해요.</p>
         </form>
       </div>
     </dialog>
@@ -165,21 +180,33 @@
       const Store = window.DasibomStore;
       const UI = window.DasibomUI;
       const esc = UI.esc, money = UI.money;
-      let highlight = new Set();
-      let seenStatus = {}; // 이미 확인한 예약 상태 (알림 숫자용)
+      const highlight = new Set();
+      const seenStatus = {}; // 이미 확인한 예약 상태 (알림 숫자용)
+      const travel = {};     // 예약별로 고른 이동 시간(분)
+      const TRAVEL_CHOICES = [10, 20, 30, 45, 60, 90];
+
+      function stockPill(p) {
+        const n = Number(p.stock);
+        if (n <= 0) return '<span class="stock out">품절</span>';
+        if (n <= 3) return `<span class="stock low">마감 임박 · ${n}묶음 남음</span>`;
+        return `<span class="stock">${n}묶음 남음</span>`;
+      }
 
       function render() {
         const r = document.getElementById('region').value;
         const c = document.getElementById('category').value;
         const q = document.getElementById('search').value.trim().toLowerCase();
-        const list = Store.onSaleProducts().filter(p =>
+        const list = Store.visibleProducts().filter(p =>
           (r === 'all' || p.region === r) &&
           (c === 'all' || p.category === c) &&
           [p.name, p.seller, p.description].some(x => String(x).toLowerCase().includes(q))
-        );
-        document.getElementById('count').textContent = list.length + '개 상품';
-        document.getElementById('products').innerHTML = list.length ? list.map(p => `
-          <article class="product${highlight.has(p.id) ? ' is-new' : ''}">
+        ).sort((a, b) => (Store.isSoldOut(a) - Store.isSoldOut(b)));
+        document.getElementById('count').textContent = list.filter(p => !Store.isSoldOut(p)).length + '개 예약 가능';
+        document.getElementById('products').innerHTML = list.length ? list.map(p => {
+          const out = Store.isSoldOut(p);
+          const s = Store.seller(p.seller);
+          return `
+          <article class="product${highlight.has(p.id) ? ' is-new' : ''}${out ? ' is-soldout' : ''}">
             <div class="cover" data-product="${esc(p.name)}" aria-hidden="true">${p.emoji || '🥬'}</div>
             <div class="detail">
               <div class="tags">
@@ -188,46 +215,89 @@
                 ${p.isDemo ? '<span class="tag">예시 상품</span>' : '<span class="tag" style="background:#f6e6da;color:#8a4a2a">새로 올라옴</span>'}
               </div>
               <h3>${esc(p.name)}</h3>
-              <div class="meta">${esc(p.seller)}</div>
+              <div class="meta">${esc(p.seller)} ${UI.sellerBadge(s)}</div>
               <div class="price">${money(p.price)} <small style="font-size:13px;font-weight:500;color:var(--muted)">/ ${esc(p.unit)}</small></div>
+              <div>${stockPill(p)}${p.endDate ? ` <span class="mini">${esc(UI.date(p.endDate))}까지</span>` : ''}</div>
+              <div class="origin">원산지 · ${esc(p.origin || '판매자 확인 중')}</div>
               <p class="desc">${esc(p.description)}</p>
               <div class="pickup">픽업 · ${esc(p.place)}</div>
               <div class="actions">
-                <button class="btn" type="button" onclick="openReserve('${esc(p.id)}')">예약 신청</button>
-                <button class="btn alt" type="button" onclick="openContact('${esc(p.id)}')">직접 문의</button>
+                ${out ? '<button class="btn" type="button" disabled style="opacity:.55;cursor:not-allowed">품절</button>'
+                      : `<button class="btn" type="button" onclick="openReserve('${esc(p.id)}')">예약 신청</button>`}
+                <button class="btn alt" type="button" onclick="openContact('${esc(p.id)}')">판매자 정보</button>
               </div>
             </div>
-          </article>`).join('') : '<div class="empty">조건에 맞는 농산물이 아직 없어요.</div>';
+          </article>`;
+        }).join('') : '<div class="empty">조건에 맞는 농산물이 아직 없어요.</div>';
         renderMineCount();
+      }
+
+      function sellerBox(p) {
+        const s = Store.seller(p.seller);
+        const lines = [`<b>판매자</b> ${esc(p.seller)} ${UI.sellerBadge(s)}`];
+        if (s && s.type === 'business') {
+          lines.push(`상호 ${esc(s.bizName)} · 사업자등록번호 ${esc(s.bizNumber)}${s.mailOrderNumber ? ` · 통신판매업 ${esc(s.mailOrderNumber)}` : ''}`);
+        } else {
+          lines.push('사업자등록 없이 참여한 개인 농가예요. 다시봄이 연락처를 확인했어요.');
+        }
+        lines.push('<span class="mini">다시봄은 통신판매중개자이며, 거래의 당사자는 판매자예요.</span>');
+        return lines.join('<br>');
       }
 
       function openReserve(id) {
         const p = Store.product(id);
         if (!p || p.status === 'off') return UI.notify('지금은 예약할 수 없는 상품이에요.');
+        if (Store.isSoldOut(p)) return UI.notify('아쉽지만 품절된 상품이에요.');
+        document.getElementById('reserveError').style.display = 'none';
         document.getElementById('reserveId').value = id;
-        document.getElementById('reserveProduct').textContent = `${p.name} · ${money(p.price)} / ${p.unit}\n판매자 · ${p.seller}\n수령 장소 · ${p.place}`;
+        document.getElementById('reserveProduct').textContent = `${p.name} · ${money(p.price)} / ${p.unit}\n원산지 · ${p.origin || '판매자 확인 중'}\n수령 장소 · ${p.place} (정확한 위치는 확정 후 안내)`;
+        document.getElementById('reserveSeller').innerHTML = sellerBox(p);
+        const max = Math.min(Number(p.stock), Store.POLICY.maxQuantityPerReservation);
+        document.getElementById('reserveStock').textContent = `(최대 ${max}묶음 · 남은 수량 ${p.stock})`;
         const quantity = document.getElementById('reserveQuantity');
         quantity.value = 1;
+        quantity.max = max;
         const updateTotal = () => {
-          document.getElementById('reserveTotal').textContent = quantity.value && quantity.validity.valid
-            ? `${quantity.value}묶음 · 예상 현장 결제 ${money(p.price * Number(quantity.value))}` : '';
+          const n = Number(quantity.value);
+          document.getElementById('reserveTotal').textContent = n >= 1 && n <= max
+            ? `${n}묶음 · 예상 현장 결제 ${money(p.price * n)}` : `1~${max}묶음 사이로 입력해 주세요.`;
         };
         quantity.oninput = updateTotal;
         updateTotal();
         const date = document.getElementById('reserveDate');
         date.min = UI.today();
+        date.max = p.endDate || '';
         date.value = '';
+        const slots = p.slots && p.slots.length ? p.slots : Store.SLOTS;
+        document.getElementById('reserveSlots').innerHTML = slots.map((s, i) =>
+          `<label><input type="radio" name="slot" value="${esc(s)}"${i === 0 ? ' checked' : ''}> ${esc(UI.slotLabel(s))}</label>`).join('');
+        document.getElementById('reservePolicy').innerHTML =
+          `<b>노쇼 정책</b> 확정된 예약에 연락 없이 오지 않으면 노쇼로 기록돼요. 노쇼가 ${Store.POLICY.noShowLimit}회가 되면 다시봄 예약이 제한돼요. 못 가게 되면 ‘내 예약’에서 미리 취소해 주세요.`;
+        document.getElementById('retention').textContent = Store.POLICY.retentionMonths;
         UI.show('reserveDialog');
       }
 
       function reserve(e) {
         e.preventDefault();
-        const data = Object.fromEntries(new FormData(e.target));
-        const r = Store.addReservation(data);
-        if (!r) return UI.notify('예약을 저장하지 못했어요. 다시 시도해 주세요.');
+        const f = e.target;
+        const data = Object.fromEntries(new FormData(f));
+        data.privacy = f.privacy.checked;
+        const err = document.getElementById('reserveError');
+        if (!String(data.customer || '').trim()) {
+          err.textContent = '신청자 이름을 적어 주세요.';
+          err.style.display = 'block';
+          return;
+        }
+        const res = Store.addReservation(data);
+        if (res.error) {
+          err.textContent = res.error;
+          err.style.display = 'block';
+          return;
+        }
+        const r = res.reservation;
         seenStatus[r.id] = r.status;
         UI.close('reserveDialog');
-        e.target.reset();
+        f.reset();
         render();
         UI.notify(`예약을 신청했어요. ${r.seller}에서 확인하면 ‘내 예약’에 알려 드릴게요.`);
       }
@@ -238,7 +308,8 @@
         const phone = p.phone || '';
         const digits = phone.replace(/[^\d+]/g, '');
         document.getElementById('contactBody').innerHTML = `
-          <div class="notice">${esc(p.name)} · ${esc(p.seller)}<br>수령 장소: ${esc(p.place)}</div>
+          <div class="notice">${esc(p.name)} · ${esc(p.seller)}<br>원산지 ${esc(p.origin || '판매자 확인 중')} · 수령 장소 ${esc(p.place)}</div>
+          <div class="seller-box">${sellerBox(p)}</div>
           ${phone ? `
             <p>판매자가 공개에 동의한 연락처로 직접 문의할 수 있어요.</p>
             <p style="font-size:21px;font-weight:800">${esc(phone)}</p>
@@ -246,8 +317,8 @@
               <a class="btn" href="tel:${esc(digits)}">전화 걸기</a>
               <a class="btn alt" href="sms:${esc(digits)}">문자 보내기</a>
             </div>` : `
-            <p>현재 공개된 연락처가 없어요. 예약 신청할 때 ‘판매자에게 남길 말’로 문의해 주세요.</p>
-            <p class="fine">정식 서비스에서는 개인정보를 노출하지 않는 문의 중계 기능을 제공할 예정입니다.</p>`}`;
+            <p>공개된 연락처가 없어요. 예약 신청할 때 ‘판매자에게 남길 말’로 문의해 주세요.</p>
+            <p class="fine">정식 서비스에서는 전화번호를 드러내지 않는 안심번호나 앱 안 메시지로 문의할 수 있게 할 예정이에요.</p>`}`;
         UI.show('contactDialog');
       }
 
@@ -267,51 +338,118 @@
         UI.show('mineDialog');
       }
 
+      function tipsBlock(name, open) {
+        const tips = Store.storageTips(name);
+        return `<details class="tips"${open ? ' open' : ''}><summary>🧺 ${esc(name)} 오래 보관하는 법</summary><ul>${tips.map(t => `<li>${esc(t)}</li>`).join('')}</ul></details>`;
+      }
+
+      function pickupBlock(r) {
+        const p = Store.product(r.productId);
+        const detail = p && p.placeDetail ? p.placeDetail : '판매자가 확정 메시지로 알려 드려요.';
+        const links = UI.mapLinks(r.place);
+        const min = travel[r.id] || 20;
+        const depart = UI.departTime(r.slot, min);
+        return `
+          <div class="pickup-box">
+            <div><b>정확한 수령 위치</b><br>${esc(detail)}</div>
+            <div class="row">
+              <a class="btn alt small" href="${esc(links.naver)}" target="_blank" rel="noopener">네이버 지도</a>
+              <a class="btn alt small" href="${esc(links.kakao)}" target="_blank" rel="noopener">카카오맵</a>
+            </div>
+            <div class="row">
+              <label for="tr-${esc(r.id)}" class="mini">가는 데 걸리는 시간</label>
+              <select id="tr-${esc(r.id)}" onchange="setTravel('${esc(r.id)}', this.value)">
+                ${TRAVEL_CHOICES.map(m => `<option value="${m}"${m === min ? ' selected' : ''}>${m}분</option>`).join('')}
+              </select>
+            </div>
+            <div class="depart">${esc(UI.date(r.date))} ${esc(slotStart(depart))}에 출발하세요 <span class="mini">(이동 ${min}분 + 여유 10분)</span></div>
+            <div class="row">
+              <button class="btn small" type="button" onclick="addCalendar('${esc(r.id)}')">📅 휴대폰 캘린더에 출발 알림 추가</button>
+            </div>
+          </div>`;
+      }
+
+      function slotStart(hhmm) {
+        return UI.slotLabel(hhmm + '-' + hhmm).split(' ~ ')[0];
+      }
+
+      function setTravel(id, value) {
+        travel[id] = Number(value);
+        renderMine();
+      }
+
+      function addCalendar(id) {
+        const r = Store.reservation(id);
+        if (!r) return;
+        const p = Store.product(r.productId);
+        const min = travel[id] || 20;
+        const ics = UI.calendarFile({
+          title: `다시봄 픽업 · ${r.product} ${r.quantity}묶음`,
+          date: r.date,
+          slot: r.slot,
+          travelMinutes: min,
+          place: (p && p.placeDetail) ? `${r.place} (${p.placeDetail})` : r.place,
+          note: `판매자 ${r.seller} · 현장 결제 ${money(r.total)}`
+        });
+        UI.downloadText(ics, `다시봄-픽업-${r.date}.ics`, 'text/calendar;charset=utf-8');
+        UI.notify(`캘린더 파일을 받았어요. 열어서 추가하면 ${UI.departTime(r.slot, min)}에 출발 알림이 울려요.`);
+      }
+
       function renderMine() {
         const list = Store.myReservations();
-        document.getElementById('mineList').innerHTML = list.length ? list.map(r => `
+        document.getElementById('mineList').innerHTML = list.length ? list.map(r => {
+          let extra = '';
+          if (r.status === 'requested') {
+            extra = `<p class="fine">판매자 확인을 기다리고 있어요. ${esc(UI.until(Store.expiresAt(r)))} 안에 확인이 없으면 자동으로 만료되고 수량이 돌아가요.</p>
+              <div class="r-actions"><button class="btn danger small" type="button" onclick="cancelMine('${esc(r.id)}')">예약 취소</button></div>`;
+          } else if (r.status === 'accepted') {
+            extra = pickupBlock(r) + `<div style="margin-top:10px">${tipsBlock(r.product, false)}</div>
+              <div class="r-actions"><button class="btn danger small" type="button" onclick="cancelMine('${esc(r.id)}')">못 가게 됐어요 (취소)</button></div>`;
+          } else if (r.status === 'done') {
+            extra = `<div style="margin-top:10px">${tipsBlock(r.product, true)}</div>`;
+          } else if (r.status === 'noshow') {
+            extra = '<p class="fine">연락 없이 수령하지 않아 노쇼로 기록됐어요. 잘못된 기록이면 고객센터로 알려 주세요.</p>';
+          }
+          return `
           <article class="r-card">
             <div class="r-emoji" aria-hidden="true">${r.emoji || '🥬'}</div>
             <div>
               <h3>${esc(r.product)} · ${esc(r.quantity)}묶음</h3>
               <div class="meta">
                 ${esc(r.seller)} · ${money(r.total)} 현장 결제<br>
-                수령 희망일 <b>${esc(UI.date(r.date))}</b> · ${esc(r.place)}
+                수령 <b>${esc(UI.date(r.date))} ${esc(UI.slotLabel(r.slot))}</b> · ${esc(r.place)}
               </div>
               ${r.sellerNote ? `<p class="r-msg seller"><b>판매자</b> ${esc(r.sellerNote)}</p>` : ''}
-              ${r.status === 'requested' ? `<div class="r-actions"><button class="btn danger small" type="button" onclick="cancelMine('${esc(r.id)}')">예약 취소</button></div>` : ''}
+              ${extra}
             </div>
             <div class="r-side">${UI.badge(r.status)}<span class="mini">${esc(UI.ago(r.updatedAt))}</span></div>
-          </article>`).join('') : '<div class="empty">아직 신청한 예약이 없어요.<br>마음에 드는 농산물을 골라 예약해 보세요.</div>';
+          </article>`;
+        }).join('') : '<div class="empty">아직 신청한 예약이 없어요.<br>마음에 드는 농산물을 골라 예약해 보세요.</div>';
       }
 
       function cancelMine(id) {
-        if (!confirmCancel()) return;
-        Store.updateReservation(id, { status: 'cancelled' });
+        if (!window.confirm('이 예약을 취소할까요?')) return;
+        Store.setReservationStatus(id, 'cancelled');
         seenStatus[id] = 'cancelled';
         renderMine();
-        renderMineCount();
-        UI.notify('예약을 취소했어요.');
-      }
-
-      function confirmCancel() {
-        return window.confirm('이 예약을 취소할까요?');
+        render();
+        UI.notify('예약을 취소했어요. 미리 알려 주셔서 고마워요.');
       }
 
       // 판매자 웹에서 바뀐 내용 반영
       Store.subscribe(prev => {
         const before = prev || { products: [], reservations: [] };
         const oldIds = new Set(before.products.map(p => p.id));
-        const added = Store.onSaleProducts().filter(p => !oldIds.has(p.id));
+        const added = Store.visibleProducts().filter(p => !oldIds.has(p.id));
         if (added.length) {
           added.forEach(p => highlight.add(p.id));
-          UI.notify(`새 농산물이 올라왔어요: ${added.map(p => p.name).join(', ')}`);
+          UI.notify(`새 농산물이 올라왔어요: ${added.slice(0, 3).map(p => p.name).join(', ')}${added.length > 3 ? ` 외 ${added.length - 3}개` : ''}`);
         }
         const oldStatus = Object.fromEntries(before.reservations.map(r => [r.id, r.status]));
         Store.myReservations().forEach(r => {
           if (oldStatus[r.id] && oldStatus[r.id] !== r.status && r.status !== 'cancelled') {
             const label = Store.STATUS[r.status] ? Store.STATUS[r.status].label : r.status;
-            UI.notify(`${r.product} 예약: ${label}`);
+            UI.notify(`${r.product} 예약: ${label}${r.status === 'accepted' ? ' · 내 예약에서 수령 위치와 출발 알림을 확인하세요' : ''}`);
           }
         });
         render();
@@ -322,6 +460,7 @@
         }
       });
 
+      UI.initBigText('bigTextBtn');
       Store.myReservations().forEach(r => (seenStatus[r.id] = r.status));
       render();
     </script>

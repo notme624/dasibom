@@ -1017,3 +1017,334 @@ body.seller-app header {
 [hidden] {
   display:none !important
 }
+
+/* ===== v3 추가: 수량·판매자 유형·안내·일괄 등록 ===== */
+html.big-text body {
+  zoom:1.18
+}
+.badge.biz {
+  background:#e2ecf7;
+  color:#1f4f7a
+}
+.badge.personal {
+  background:#f1ecdf;
+  color:#6b5a2e
+}
+.stock {
+  display:inline-block;
+  font-size:12px;
+  font-weight:800;
+  border-radius:20px;
+  padding:3px 9px;
+  background:#eef4ea;
+  color:#2f5a35
+}
+.stock.low {
+  background:#fff1d6;
+  color:#8a5a12
+}
+.stock.out {
+  background:#e9e9e4;
+  color:#5d5f58
+}
+.product.is-soldout .cover {
+  filter:grayscale(.8);
+  opacity:.65
+}
+.origin {
+  font-size:13px;
+  color:var(--muted);
+  margin-top:4px
+}
+.slot-group {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px
+}
+.slot-group label {
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:1px solid #ccd8cd;
+  border-radius:10px;
+  padding:9px 12px;
+  font-weight:600;
+  font-size:14px;
+  background:#fff;
+  cursor:pointer;
+  margin:0
+}
+.slot-group input {
+  width:auto;
+  margin:0
+}
+.slot-group label:has(input:checked) {
+  border-color:#244a35;
+  background:#eaf2e6
+}
+.check-row {
+  display:flex;
+  gap:9px;
+  align-items:flex-start;
+  font-size:14px;
+  line-height:1.55;
+  margin:0 0 12px
+}
+.check-row input {
+  width:18px;
+  height:18px;
+  margin-top:2px;
+  flex:none
+}
+.policy {
+  background:#fff8ec;
+  border:1px solid #f0dfbd;
+  color:#7a5413;
+  border-radius:10px;
+  padding:11px 13px;
+  font-size:13px;
+  line-height:1.6;
+  margin:0 0 14px
+}
+.legal-line {
+  font-size:12.5px;
+  line-height:1.7;
+  opacity:.9
+}
+.seller-box {
+  border:1px solid var(--line);
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:13px;
+  line-height:1.7;
+  margin:0 0 14px;
+  background:#fff
+}
+.seller-box b {
+  color:#172f24
+}
+.pickup-box {
+  margin-top:12px;
+  border-top:1px dashed #d6dccf;
+  padding-top:12px;
+  display:grid;
+  gap:10px
+}
+.pickup-box .row {
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  align-items:center
+}
+.pickup-box select {
+  padding:8px 10px;
+  border:1px solid #ccd8cd;
+  border-radius:10px;
+  background:#fff;
+  font-weight:600
+}
+.depart {
+  font-size:14px;
+  font-weight:700;
+  color:#172f24
+}
+.tips {
+  background:#f3f7ef;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:13.5px;
+  line-height:1.65
+}
+.tips b {
+  display:block;
+  margin-bottom:4px;
+  color:#244a35
+}
+.tips ul {
+  margin:0;
+  padding-left:18px
+}
+details.tips summary {
+  cursor:pointer;
+  font-weight:700;
+  color:#244a35
+}
+details.tips[open] summary {
+  margin-bottom:6px
+}
+.type-pick {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+  margin-bottom:16px
+}
+.type-pick label {
+  border:1px solid #ccd8cd;
+  border-radius:14px;
+  padding:14px;
+  background:#fff;
+  cursor:pointer;
+  display:block;
+  margin:0
+}
+.type-pick label:has(input:checked) {
+  border-color:#244a35;
+  background:#eaf2e6;
+  box-shadow:0 0 0 1px #244a35
+}
+.type-pick input {
+  width:auto;
+  margin:0 6px 0 0
+}
+.type-pick b {
+  font-size:15px
+}
+.type-pick small {
+  display:block;
+  color:var(--muted);
+  font-size:12.5px;
+  line-height:1.5;
+  margin-top:6px;
+  font-weight:500
+}
+.origin-notice {
+  border:1px solid #d6dccf;
+  border-radius:12px;
+  padding:12px 14px;
+  font-size:13px;
+  line-height:1.65;
+  max-height:190px;
+  overflow:auto;
+  background:#fbfcf8;
+  margin:0 0 10px
+}
+.origin-notice h4 {
+  margin:0 0 6px;
+  font-size:14px
+}
+.origin-notice ul {
+  margin:0;
+  padding-left:18px
+}
+
+/* 일괄 등록 표 */
+dialog.wide {
+  max-width:min(1180px,calc(100% - 26px))
+}
+.bulk-wrap {
+  overflow:auto;
+  border:1px solid #d6dccf;
+  border-radius:12px;
+  background:#fff;
+  max-height:52vh
+}
+table.bulk {
+  border-collapse:collapse;
+  width:100%;
+  min-width:1080px;
+  font-size:13px
+}
+table.bulk th {
+  position:sticky;
+  top:0;
+  background:#f3f5ec;
+  text-align:left;
+  padding:8px;
+  font-size:12.5px;
+  border-bottom:1px solid #d6dccf;
+  white-space:nowrap;
+  z-index:1
+}
+table.bulk td {
+  border-bottom:1px solid #eef0e8;
+  padding:4px;
+  vertical-align:top
+}
+table.bulk td.num {
+  color:var(--muted);
+  text-align:center;
+  padding-top:11px;
+  width:34px
+}
+table.bulk input,table.bulk select {
+  width:100%;
+  border:1px solid transparent;
+  border-radius:7px;
+  padding:7px 8px;
+  font-size:13px;
+  background:transparent
+}
+table.bulk input:focus,table.bulk select:focus {
+  border-color:#244a35;
+  background:#fff;
+  outline:none
+}
+table.bulk tr.bad td {
+  background:#fdf1ee
+}
+table.bulk .err {
+  color:#8f3a26;
+  font-size:12px;
+  padding:0 8px 6px
+}
+table.bulk .del {
+  background:none;
+  border:0;
+  color:#8f3a26;
+  font-size:18px;
+  padding:6px
+}
+.bulk-tools {
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:0 0 12px;
+  align-items:center
+}
+.bulk-tools .grow {
+  flex:1
+}
+.foot-actions {
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  align-items:center;
+  margin-top:14px;
+  flex-wrap:wrap
+}
+.block-list li {
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap
+}
+.info-grid {
+  display:grid;
+  grid-template-columns:140px 1fr;
+  gap:8px 14px;
+  font-size:14px;
+  background:#fffef9;
+  border:1px solid #e5e6d9;
+  border-radius:16px;
+  padding:18px 20px;
+  margin-bottom:14px
+}
+.info-grid dt {
+  color:var(--muted)
+}
+.info-grid dd {
+  margin:0;
+  font-weight:600
+}
+@media(max-width:760px) {
+  .type-pick {
+    grid-template-columns:1fr
+  }
+  .info-grid {
+    grid-template-columns:1fr
+  }
+  .info-grid dt {
+    margin-top:6px
+  }
+}
