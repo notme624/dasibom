@@ -1422,3 +1422,47 @@ table.bulk tr.bad input::placeholder {
     position:static
   }
 }
+
+/* ===== 사용성 점검 반영 (AI 페르소나 점검 2026-11-27) ===== */
+/* 1) 큰 글씨 모드: 더 크게 + 작은 글씨도 16px 이상이 되도록 */
+html.big-text body {
+  zoom:1.25
+}
+html.big-text :is(.mini,.fine,small,.badge,.stock,.tag,.legal-line,.origin,.meta,.portal-bar,.seller-tag,.nav-count,.chip,.r-msg,.policy,.seller-box,.notice,.check-row,.impact-item small,.impact-item b,.info-grid,.tips,.hero-link,.btn,.btn.small,label,input,select,textarea,.featured-label,.eyebrow,.stat small,.type-pick small,.origin-notice,table.bulk,.dash-list,.pickup,.desc,.price small,.r-actions .btn,.depart,.empty,.lead,p) {
+  font-size:13px !important
+}
+html.big-text :is(.desc,.meta,.policy,.notice,.seller-box,.check-row,.tips,.lead,p,label,input,select,textarea,.r-msg,.btn,.depart,.empty) {
+  font-size:14px !important
+}
+/* 2) 누르기 쉬운 크기: 휴대폰에서 버튼·입력칸 높이 44px 이상 */
+@media(max-width:760px) {
+  .btn,.btn.small,.r-actions .btn,.chip,.tab,select,.pickup-box select,.slot-group label,.hero-link,.install-link {
+    min-height:44px
+  }
+  .btn,.btn.small,.r-actions .btn,.chip {
+    display:inline-flex;
+    align-items:center;
+    justify-content:center
+  }
+  .hero-link,.install-link {
+    display:inline-flex;
+    align-items:center
+  }
+  .close {
+    width:44px;
+    height:44px
+  }
+  .portal-bar a {
+    display:inline-flex;
+    align-items:center;
+    min-height:44px
+  }
+  .check-row a,.fine a {
+    display:inline-block;
+    padding:10px 4px;
+    margin:-10px 0
+  }
+  .logo {
+    min-height:44px
+  }
+}

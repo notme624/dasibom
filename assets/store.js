@@ -457,7 +457,7 @@
       return { products: Store.products(), sellers: Store.sellers(), reservations: Store.reservations(), customers: Store.customers(), policy: POLICY, exportedAt: now() };
     },
     resetDemo() {
-      ['products', 'sellers', 'reservations', 'my-reservations', 'current-seller', 'customers'].forEach(k => localStorage.removeItem(PREFIX + k));
+      ['products', 'sellers', 'reservations', 'my-reservations', 'current-seller', 'customers', 'me'].forEach(k => localStorage.removeItem(PREFIX + k));
       ensureSeeded();
     },
 

@@ -298,7 +298,17 @@
         const date = document.getElementById('reserveDate');
         date.min = UI.today();
         date.max = p.endDate || '';
-        date.value = '';
+        // 기본값: 오늘 (저녁 6시가 지났으면 내일). 판매 종료일을 넘으면 비워 둠
+        const d0 = new Date();
+        if (d0.getHours() >= 18) d0.setDate(d0.getDate() + 1);
+        const def = new Date(d0.getTime() - d0.getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+        date.value = !p.endDate || def <= p.endDate ? def : '';
+        // 이 휴대폰에서 지난번에 쓴 이름·연락처를 채워 둠 (이 기기 안에만 저장)
+        const saved = rememberedMe();
+        if (saved) {
+          document.getElementById('reserveCustomer').value = saved.name || '';
+          document.getElementById('reservePhone').value = saved.phone || '';
+        }
         const slots = p.slots && p.slots.length ? p.slots : Store.SLOTS;
         document.getElementById('reserveSlots').innerHTML = slots.map((s, i) =>
           `<label><input type="radio" name="slot" value="${esc(s)}"${i === 0 ? ' checked' : ''}> ${esc(UI.slotLabel(s))}</label>`).join('');
@@ -327,10 +337,15 @@
         }
         const r = res.reservation;
         seenStatus[r.id] = r.status;
+        try { localStorage.setItem('dasibom-v3-me', JSON.stringify({ name: r.customer, phone: r.phone })); } catch {}
         UI.close('reserveDialog');
         f.reset();
         render();
         UI.notify(`예약을 신청했어요. ${r.seller}에서 확인하면 ‘내 예약’에 알려 드릴게요.`);
+      }
+
+      function rememberedMe() {
+        try { return JSON.parse(localStorage.getItem('dasibom-v3-me') || 'null'); } catch { return null; }
       }
 
       function openContact(id) {

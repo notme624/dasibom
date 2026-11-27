@@ -1,0 +1,123 @@
+{
+ "A": {
+  "persona": "70대 텃밭 판매자 (큰 글씨)",
+  "task": "판매자로 참여하고 상추 1개 올리기",
+  "steps": 13,
+  "fields": 7,
+  "notes": [
+   "참여 성공",
+   "상품 올리기 성공"
+  ],
+  "audits": [
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 22,
+    "screen": "판매자 첫 화면(참여)"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 15,
+    "screen": "판매자 대시보드"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 26,
+    "screen": "농산물 올리기 창"
+   }
+  ],
+  "errors": []
+ },
+ "B": {
+  "persona": "20대 자취생",
+  "task": "양파 예약 → 확정 후 출발 알림 넣기",
+  "steps": 9,
+  "fields": 3,
+  "notes": [
+   "예약 성공",
+   "출발 알림 파일 받기 성공",
+   "다시 예약: 3단계·입력 0칸 성공"
+  ],
+  "audits": [
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 14,
+    "screen": "소비자 첫 화면"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 13,
+    "screen": "농산물 목록"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [
+     "자세히 47x42"
+    ],
+    "targets": 16,
+    "screen": "예약 신청 창"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 6,
+    "screen": "내 예약 (확정)"
+   }
+  ],
+  "errors": []
+ },
+ "C": {
+  "persona": "50대 소비자 (큰 글씨)",
+  "task": "감자 예약하고 취소하기",
+  "steps": 8,
+  "fields": 2,
+  "notes": [
+   "취소 성공"
+  ],
+  "audits": [
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 12,
+    "screen": "소비자 첫 화면(큰 글씨)"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 16,
+    "screen": "예약 신청 창(큰 글씨)"
+   },
+   {
+    "overflow": false,
+    "smallText": [],
+    "tinyTargets": [],
+    "under44": [],
+    "targets": 2,
+    "screen": "내 예약(큰 글씨)"
+   }
+  ],
+  "errors": []
+ }
+}
